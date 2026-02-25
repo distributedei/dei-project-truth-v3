@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEI Project Truth | Distributed Energy Infrastructure</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+  <style>
+    :root{--navy:#375673;--navy-mid:#2d4a63;--navy-lt:#e8eef4;--slate:#4a7296;--steel:#5a8ab4;--gold:#779d36;--gold-lt:#8bb544;--white:#1a1a1a;--gray:#6b7c8a;--gray-lt:#4a5568;--border:rgba(55,86,115,0.12);--green:#2ecc8a;--red:#e05252;--amber:#e8a930;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Barlow',sans-serif;background:#f5f7fa;color:#1a1a1a;min-height:100vh;}
+    .app{display:flex;min-height:100vh;}.sidebar{width:260px;background:#2d4a63;border-right:1px solid #1e3a52;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;}
+    .main{margin-left:260px;flex:1;display:flex;flex-direction:column;}.topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 1px 3px rgba(0,0,0,0.05);}.content{padding:32px;flex:1;}
+    .sidebar-logo{padding:20px;border-bottom:1px solid rgba(255,255,255,0.1);}.sidebar-logo img{width:100%;max-width:200px;margin-bottom:8px;}.logo-wordmark{display:none;}.logo-wordmark span{color:var(--gold);}.logo-tagline{font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:2px;margin-top:4px;}.logo-divider{height:2px;background:linear-gradient(90deg,#779d36,transparent);margin-top:10px;border-radius:2px;}
+    .nav{padding:12px 10px;flex:1;overflow-y:auto;}.nav-section{font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:2px;padding:16px 10px 6px;}.nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:500;color:rgba(255,255,255,0.7);transition:all 0.2s;margin:2px 0;}.nav-item:hover{background:rgba(255,255,255,0.1);color:#fff;}.nav-item.active{background:rgba(119,157,54,0.2);color:#8bb544;border-left:2px solid #779d36;padding-left:12px;}.nav-icon{width:20px;text-align:center;font-size:16px;}.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:12px;}
+    .sidebar-user{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.1);font-size:12px;}.user-name{font-weight:600;color:#fff;font-size:13px;}.user-org{color:rgba(255,255,255,0.6);font-size:11px;margin-top:2px;}.signout-btn{margin-top:10px;width:100%;background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);padding:6px;border-radius:5px;cursor:pointer;font-size:12px;font-family:'Barlow',sans-serif;}.signout-btn:hover{border-color:#779d36;color:#8bb544;}
+    .topbar-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:#375673;}.live-dot{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--green);}.live-dot::before{content:'';width:7px;height:7px;background:var(--green);border-radius:50%;animation:pd 2s infinite;}@keyframes pd{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(1.3);}}
+    .btn{padding:7px 16px;border-radius:5px;border:1px solid;cursor:pointer;font-size:13px;font-weight:600;font-family:'Barlow',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:7px;}.btn-gold{background:linear-gradient(135deg,#779d36,#5f8228);border-color:#779d36;color:#fff;}.btn-ghost{background:transparent;border-color:#e2e8f0;color:#6b7c8a;}.btn-ghost:hover{border-color:#375673;color:#375673;background:#f8fafb;}.btn-sm{padding:5px 11px;font-size:12px;}.btn-primary{background:linear-gradient(135deg,#1a4a8a,#0f2d5e);border-color:var(--steel);color:var(--white);}
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:24px;}.kpi-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:18px;position:relative;overflow:hidden;cursor:pointer;transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.04);}.kpi-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.08);}.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#779d36,transparent);}.kpi-card.alert{border-color:rgba(224,82,82,0.3);}.kpi-card.alert::before{background:linear-gradient(90deg,var(--red),transparent);}.kpi-card.good::before{background:linear-gradient(90deg,var(--green),transparent);}.kpi-card.ac{border-color:#779d36;box-shadow:0 0 20px rgba(119,157,54,0.15);}.kpi-label{font-size:10px;color:#6b7c8a;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:600;}.kpi-value{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:700;line-height:1;color:#375673;}.kpi-sub{font-size:11px;margin-top:5px;color:#8a9baa;}.kpi-sub.red{color:var(--red);}.kpi-sub.green{color:var(--green);}
+    .ptabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:20px;padding:4px;background:#fff;border-radius:8px;border:1px solid #e2e8f0;}.ptab{padding:7px 14px;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;color:#6b7c8a;transition:all 0.2s;font-family:'Barlow Condensed',sans-serif;position:relative;}.ptab:hover{color:#375673;background:#f0f4f8;}.ptab.active{background:linear-gradient(135deg,rgba(119,157,54,0.12),rgba(55,86,115,0.08));color:#779d36;}.ptab .tc{font-size:10px;color:#8a9baa;margin-left:4px;}.ptab.active .tc{color:#779d36;}.ptab.hod::after{content:'';position:absolute;top:4px;right:4px;width:6px;height:6px;background:var(--red);border-radius:50%;}
+    .pbar{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap;}.pchip{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #e2e8f0;color:#6b7c8a;transition:all 0.2s;background:#fff;}.pchip:hover{border-color:#375673;color:#375673;}.pchip.active{border-color:#779d36;color:#779d36;background:rgba(119,157,54,0.08);}.pchip.hod{border-color:rgba(224,82,82,0.4);}
+    .tw{background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;margin-bottom:24px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}.th{padding:14px 20px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#f8fafb;}.tt{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:#375673;}
+    .fsel{background:#fff;border:1px solid #e2e8f0;color:#4a5568;padding:5px 10px;border-radius:5px;font-size:12px;font-family:'Barlow',sans-serif;}
+    table{width:100%;border-collapse:collapse;}th{text-align:left;padding:10px 16px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#8a9baa;border-bottom:1px solid #e2e8f0;background:#f8fafb;}td{padding:11px 16px;font-size:13px;border-bottom:1px solid #f0f4f8;vertical-align:middle;color:#4a5568;}tr:hover td{background:#f8fafb;}tr.odr td{background:rgba(224,82,82,0.04);}tr.odr:hover td{background:rgba(224,82,82,0.08);}
+    .badge{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;font-family:'Barlow Condensed',sans-serif;}.b-dra{background:#f0f4f8;color:#8a9baa;border:1px solid #e2e8f0;}.b-sub{background:rgba(55,86,115,0.08);color:#375673;border:1px solid rgba(55,86,115,0.2);}.b-rev{background:rgba(100,60,180,0.3);color:#b89af0;border:1px solid rgba(150,100,230,0.3);}.b-app{background:rgba(46,204,138,0.15);color:var(--green);border:1px solid rgba(46,204,138,0.3);}.b-rej{background:rgba(224,82,82,0.15);color:var(--red);border:1px solid rgba(224,82,82,0.3);}.b-clo{background:#f0f4f8;color:#8a9baa;border:1px solid #e2e8f0;}.b-ret{background:rgba(232,169,48,0.15);color:var(--amber);border:1px solid rgba(232,169,48,0.3);}
+    .bic{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;font-family:'Barlow Condensed',sans-serif;}.bc-e{background:rgba(55,86,115,0.1);color:#375673;}.bc-c{background:rgba(46,204,138,0.15);color:var(--green);}.bc-p{background:rgba(200,168,75,0.15);color:var(--gold-lt);}.bc-o{background:rgba(232,169,48,0.15);color:var(--amber);}.bc-v{background:#f0f4f8;color:#8a9baa;}.bc-a{background:rgba(180,100,50,0.2);color:#e8a07a;}
+    .mo{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}.ml{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:28px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.2);}
+    .mt{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:#375673;}.fg{margin-bottom:14px;}.fl{font-size:11px;color:#8a9baa;margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:1px;font-weight:600;}.fi,.fs,.ft{width:100%;background:#f8fafb;border:1px solid #e2e8f0;color:#1a1a1a;padding:9px 12px;border-radius:5px;font-size:14px;font-family:'Barlow',sans-serif;}.fi:focus,.fs:focus,.ft:focus{outline:none;border-color:#779d36;}.ft{resize:vertical;min-height:70px;}.ma{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;border-top:1px solid #e2e8f0;padding-top:18px;}
+    .dp{background:#f8fafb;border:1px solid #e2e8f0;border-radius:10px;padding:24px;margin:4px 16px 12px;}.dg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;}.dl{color:#8a9baa;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600;}.dv{color:#375673;font-weight:500;font-size:13px;}
+    .section-head{margin-bottom:20px;}.section-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;letter-spacing:0.5px;line-height:1;color:#375673;}.section-title span{color:#779d36;}.section-sub{font-size:14px;color:#8a9baa;margin-top:6px;}
+    .loading{display:flex;align-items:center;justify-content:center;padding:60px;flex-direction:column;gap:16px;color:var(--gray);}.spinner{width:32px;height:32px;border:3px solid #e2e8f0;border-top-color:#779d36;border-radius:50%;animation:spin 0.8s linear infinite;}@keyframes spin{to{transform:rotate(360deg);}}
+    .be{background:rgba(224,82,82,0.1);border:1px solid rgba(224,82,82,0.3);border-radius:8px;padding:12px 16px;margin-bottom:16px;color:#f08080;font-size:13px;}.bs{background:rgba(46,204,138,0.1);border:1px solid rgba(46,204,138,0.3);border-radius:8px;padding:12px 16px;margin-bottom:16px;color:var(--green);font-size:13px;}
+    .mono{font-family:'Barlow Condensed',sans-serif;color:#779d36;font-size:13px;}
+    .cb{display:flex;align-items:center;gap:16px;background:rgba(46,204,138,0.05);border:1px solid rgba(46,204,138,0.2);border-radius:8px;padding:14px 20px;margin-bottom:24px;}
+    .cs{background:#fff;border:1px dashed rgba(119,157,54,0.3);border-radius:10px;padding:48px;text-align:center;}
+    .login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f5f7fa;}.login-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:48px 40px;text-align:center;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.08);}.login-wordmark{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;letter-spacing:1px;color:#375673;}.login-wordmark span{color:#779d36;}.login-tagline{font-size:11px;color:#8a9baa;text-transform:uppercase;letter-spacing:2px;margin-top:6px;}.login-divider{height:1px;background:linear-gradient(90deg,transparent,#779d36,transparent);margin:24px 0;}.ms-btn{background:#0078d4;border:none;color:#fff;padding:13px 28px;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Barlow',sans-serif;display:flex;align-items:center;gap:10px;margin:0 auto;}.ms-btn:hover{background:#106ebe;}
+    code{background:rgba(200,168,75,0.15);color:var(--gold-lt);padding:2px 8px;border-radius:4px;font-size:13px;}
+    .exec-kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:24px;}
+    .exec-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;transition:all 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.04);}.exec-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.08);}
+    .exec-card-head{padding:16px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+    .exec-proj-name{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:#375673;line-height:1.2;}
+    .exec-proj-client{font-size:11px;color:#8a9baa;margin-top:2px;}
+    .exec-cat{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;font-family:'Barlow Condensed',sans-serif;white-space:nowrap;}
+    .cat-uc{background:rgba(46,204,138,0.12);color:#2ecc8a;border:1px solid rgba(46,204,138,0.3);}
+    .cat-fc{background:rgba(55,86,115,0.1);color:#375673;border:1px solid rgba(55,86,115,0.2);}
+    .cat-lntp{background:rgba(232,169,48,0.12);color:#e8a930;border:1px solid rgba(232,169,48,0.3);}
+    .cat-pipe{background:#f0f4f8;color:#8a9baa;border:1px solid #e2e8f0;}
+    .cat-done{background:rgba(119,157,54,0.1);color:#779d36;border:1px solid rgba(119,157,54,0.3);}
+    .exec-detail{border-top:1px solid #f0f4f8;padding:0 20px 20px;}
+    .exec-section{margin-top:16px;}.exec-section-title{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:#8a9baa;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+    .exec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;}
+    .exec-field{padding:8px 10px;background:#f8fafb;border:1px solid #f0f4f8;border-radius:6px;}.exec-field-label{font-size:9px;color:#8a9baa;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;font-weight:600;}.exec-field-value{font-size:13px;color:#375673;font-weight:500;word-break:break-word;}
+    .exec-comments{background:#f8fafb;border:1px solid #f0f4f8;border-radius:8px;padding:12px;font-size:12px;color:#4a5568;line-height:1.6;max-height:200px;overflow-y:auto;white-space:pre-wrap;}
+    .exec-critical{background:rgba(224,82,82,0.05);border:1px solid rgba(224,82,82,0.15);border-radius:8px;padding:12px;font-size:12px;color:#c0392b;line-height:1.5;white-space:pre-wrap;}
+    .exec-billing{background:rgba(119,157,54,0.06);border:1px solid rgba(119,157,54,0.2);border-radius:8px;padding:12px;font-size:12px;color:#5f8228;line-height:1.5;}
+    .exec-filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:20px;}
+    .exec-search{background:#fff;border:1px solid #e2e8f0;color:#1a1a1a;padding:8px 14px;border-radius:6px;font-size:13px;font-family:'Barlow',sans-serif;width:240px;}.exec-search:focus{outline:none;border-color:#779d36;}
+    .exec-summary-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+    .permit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px;}
+    .permit-item{padding:6px 10px;border-radius:6px;font-size:11px;display:flex;justify-content:space-between;gap:8px;align-items:flex-start;}
+    .permit-done{background:rgba(46,204,138,0.08);border:1px solid rgba(46,204,138,0.2);}.permit-done .permit-val{color:#2ecc8a;}
+    .permit-need{background:rgba(224,82,82,0.05);border:1px solid rgba(224,82,82,0.15);}.permit-need .permit-val{color:var(--red);}
+    .permit-prog{background:rgba(232,169,48,0.06);border:1px solid rgba(232,169,48,0.15);}.permit-prog .permit-val{color:var(--amber);}
+    .permit-label{font-size:9px;color:#8a9baa;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;}
+    .permit-val{font-size:11px;font-weight:600;}
+    ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:#f5f7fa;}::-webkit-scrollbar-thumb{background:#c4d0dc;border-radius:3px;}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const{useState,useEffect,useCallback,useMemo}=React;
+const CONFIG={clientId:"613928f8-0497-47ea-bb0f-c1725a1f156a",tenantId:"ec357a32-5b85-438d-a765-ae33c8eb13b7",siteId:"8103997e-0688-4832-a5b4-bf18de7f96f5",siteUrl:"https://distributedei.sharepoint.com",lists:{rfi:"38fd99d2-dad5-41d8-a898-4f5e425ad340"}};
+const msalInstance=new msal.PublicClientApplication({auth:{clientId:CONFIG.clientId,authority:"https://login.microsoftonline.com/"+CONFIG.tenantId,redirectUri:window.location.origin},cache:{cacheLocation:"sessionStorage"}});
+const SCOPES=["Sites.Selected","Files.Read.All","User.Read"];
+async function getToken(){const a=msalInstance.getAllAccounts();if(!a.length)throw new Error("Not signed in");try{return(await msalInstance.acquireTokenSilent({scopes:SCOPES,account:a[0]})).accessToken;}catch(e){return(await msalInstance.acquireTokenPopup({scopes:SCOPES})).accessToken;}}
+async function graph(m,p,b){const t=await getToken();const r=await fetch("https://graph.microsoft.com/v1.0"+p,{method:m||"GET",headers:{Authorization:"Bearer "+t,...(b?{"Content-Type":"application/json"}:{})},body:b?JSON.stringify(b):undefined});if(!r.ok){const e=await r.json();throw new Error(e.error?.message||"Error "+r.status);}return r.status===204?null:r.json();}
+const SITE="/sites/"+CONFIG.siteId;
+const S2A={BallinCourt:"BallInCourt",Assignedto:"AssignedTo"};const A2S={BallInCourt:"BallinCourt",AssignedTo:"Assignedto"};
+function fromSP(f){const o={};for(const[k,v] of Object.entries(f))o[S2A[k]||k]=v;return o;}
+function toSP(f){const o={};for(const[k,v] of Object.entries(f)){if(v!==""&&v!=null)o[A2S[k]||k]=v;}return o;}
+async function getItems(l){const d=await graph("GET",SITE+"/lists/"+l+"/items?expand=fields&$top=999");return(d.value||[]).map(i=>({id:i.id,...fromSP(i.fields)}));}
+async function addItem(l,f){return graph("POST",SITE+"/lists/"+l+"/items",{fields:toSP(f)});}
+async function editItem(l,id,f){return graph("PATCH",SITE+"/lists/"+l+"/items/"+id+"/fields",toSP(f));}
+
+const STS=["Draft","Submitted","In Review","Returned - Revise","Approved","Rejected","Closed"];
+const BICS=["Engineering","Construction","PM","Owner","Vendor","AHJ","Utility"];
+const SM={"Draft":"b-dra","Submitted":"b-sub","In Review":"b-rev","Returned - Revise":"b-ret","Approved":"b-app","Rejected":"b-rej","Closed":"b-clo"};
+const BM={Engineering:"bc-e",Construction:"bc-c",PM:"bc-p",Owner:"bc-o",Vendor:"bc-v",AHJ:"bc-a",Utility:"bc-a"};
+const BI={Engineering:"\u2699",Construction:"\uD83C\uDFD7",PM:"\uD83D\uDCCB",Owner:"\uD83D\uDC64",Vendor:"\uD83D\uDCE6",AHJ:"\uD83C\uDFDB",Utility:"\uD83C\uDFDB"};
+
+function Badge({status}){return React.createElement("span",{className:"badge "+(SM[status]||"b-dra")},status||"\u2014");}
+function BIC({val}){return React.createElement("span",{className:"bic "+(BM[val]||"bc-v")},(BI[val]||"\u2022")+" "+(val||"\u2014"));}
+function agingDays(d){if(!d)return null;return Math.floor((new Date()-new Date(d))/86400000);}
+function isOverdue(i){if(["Closed","Approved"].includes(i.Status))return false;var d=agingDays(i.DueDate);return d!==null&&d>0;}
+function Aging({date,status}){if(["Closed","Approved"].includes(status))return React.createElement("span",{style:{color:"var(--green)",fontSize:12}},"\u25CF Done");var d=agingDays(date);if(d===null)return React.createElement("span",{style:{color:"#8a9baa"}},"\u2014");if(d<=0)return React.createElement("span",{style:{color:"var(--green)",fontSize:12}},"\u25CF On Track");if(d<7)return React.createElement("span",{style:{color:"var(--amber)",fontSize:12}},"\u25B2 "+d+"d");return React.createElement("span",{style:{color:"var(--red)",fontSize:12,fontWeight:700}},"\u26A0 "+d+"d");}
+function fmtDate(d){if(!d)return"\u2014";return new Date(d).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});}
+
+function Modal({title,onClose,children}){
+  return(<div className="mo" onClick={function(e){if(e.target===e.currentTarget)onClose();}}>
+    <div className="ml">
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+        <div className="mt">{title}</div>
+        <button className="btn btn-ghost btn-sm" onClick={onClose}>✕</button>
+      </div>{children}
+    </div></div>);
+}
+
+function AddModal({onClose,onSave,projects}){
+  const[f,setF]=useState({Title:"",Project:"",ItemType:"RFI",Number:"",Subject:"",Status:"Draft",BallInCourt:"Engineering",AssignedTo:"",DueDate:"",Description:"",EvidenceLink:""});
+  const[saving,setSaving]=useState(false);
+  var s=function(k,v){setF(function(p){return Object.assign({},p,{[k]:v});});};
+  return(<Modal title="Add RFI / Submittal" onClose={onClose}>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+      <div className="fg" style={{gridColumn:"1/-1"}}><label className="fl">Title *</label><input className="fi" value={f.Title} onChange={function(e){s("Title",e.target.value);}} placeholder="Brief title"/></div>
+      <div className="fg"><label className="fl">Project</label><select className="fs" value={f.Project} onChange={function(e){s("Project",e.target.value);}}><option value="">Select...</option>{projects.map(function(p){return <option key={p}>{p}</option>;})}</select></div>
+      <div className="fg"><label className="fl">Type</label><select className="fs" value={f.ItemType} onChange={function(e){s("ItemType",e.target.value);}}><option>RFI</option><option>Submittal</option></select></div>
+      <div className="fg"><label className="fl">Number</label><input className="fi" value={f.Number} onChange={function(e){s("Number",e.target.value);}}/></div>
+      <div className="fg"><label className="fl">Status</label><select className="fs" value={f.Status} onChange={function(e){s("Status",e.target.value);}}>{STS.map(function(v){return <option key={v}>{v}</option>;})}</select></div>
+      <div className="fg"><label className="fl">Ball in Court</label><select className="fs" value={f.BallInCourt} onChange={function(e){s("BallInCourt",e.target.value);}}>{BICS.map(function(v){return <option key={v}>{v}</option>;})}</select></div>
+      <div className="fg"><label className="fl">Assigned To</label><input className="fi" value={f.AssignedTo} onChange={function(e){s("AssignedTo",e.target.value);}}/></div>
+      <div className="fg"><label className="fl">Due Date</label><input className="fi" type="date" value={f.DueDate} onChange={function(e){s("DueDate",e.target.value);}}/></div>
+      <div className="fg" style={{gridColumn:"1/-1"}}><label className="fl">Subject</label><input className="fi" value={f.Subject} onChange={function(e){s("Subject",e.target.value);}}/></div>
+      <div className="fg" style={{gridColumn:"1/-1"}}><label className="fl">Description</label><textarea className="ft" value={f.Description} onChange={function(e){s("Description",e.target.value);}}/></div>
+      <div className="fg" style={{gridColumn:"1/-1"}}><label className="fl">Evidence Link</label><input className="fi" value={f.EvidenceLink} onChange={function(e){s("EvidenceLink",e.target.value);}}/></div>
+    </div>
+    <div className="ma"><button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+      <button className="btn btn-gold" disabled={saving||!f.Title} onClick={async function(){setSaving(true);try{await onSave(f);onClose();}catch(e){alert(e.message);setSaving(false);}}}>
+        {saving?"Saving...":"⚡ Save to SharePoint"}</button></div>
+  </Modal>);
+}
+
+function EditModal({item,onClose,onSave,projects}){
+  const[f,setF]=useState({Status:item.Status||"Draft",BallInCourt:item.BallInCourt||"Engineering",AssignedTo:item.AssignedTo||"",DueDate:item.DueDate?(item.DueDate+"").split("T")[0]:"",Project:item.Project||"",Description:item.Description||"",Subject:item.Subject||"",Number:item.Number||"",EvidenceLink:item.EvidenceLink||""});
+  const[saving,setSaving]=useState(false);
+  var s=function(k,v){setF(function(p){return Object.assign({},p,{[k]:v});});};
+  return(<Modal title={"Edit \u2014 "+(item.Title||item.Number||"Item")} onClose={onClose}>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+      <div className="fg"><label className="fl">Status</label><select className="fs" value={f.Status} onChange={function(e){s("Status",e.target.value);}}>{STS.map(function(v){return <option key={v}>{v}</option>;})}</select></div>
+      <div className="fg"><label className="fl">Ball in Court</label><select className="fs" value={f.BallInCourt} onChange={function(e){s("BallInCourt",e.target.value);}}>{BICS.map(function(v){return <option key={v}>{v}</option>;})}</select></div>
+      <div className="fg"><label className="fl">Assigned To</label><input className="fi" value={f.AssignedTo} onChange={function(e){s("AssignedTo",e.target.value);}}/></div>
+      <div className="fg"><label className="fl">Due Date</label><input className="fi" type="date" value={f.DueDate} onChange={function(e){s("DueDate",e.target.value);}}/></div>
+      <div className="fg"><label className="fl">Project</label><select className="fs" value={f.Project} onChange={function(e){s("Project",e.target.value);}}><option value="">Select...</option>{projects.map(function(p){return <option key={p}>{p}</option>;})}</select></div>
+      <div className="fg"><label className="fl">Number</label><input className="fi" value={f.Number} onChange={function(e){s("Number",e.target.value);}}/></div>
+      <div className="fg" style={{gridColumn:"1/-1"}}><label className="fl">Subject</label><input className="fi" value={f.Subject} onChange={function(e){s("Subject",e.target.value);}}/></div>
+      <div className="fg" style={{gridColumn:"1/-1"}}><label className="fl">Description</label><textarea className="ft" value={f.Description} onChange={function(e){s("Description",e.target.value);}}/></div>
+      <div className="fg" style={{gridColumn:"1/-1"}}><label className="fl">Evidence Link</label><input className="fi" value={f.EvidenceLink} onChange={function(e){s("EvidenceLink",e.target.value);}}/></div>
+    </div>
+    <div className="ma"><button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+      <button className="btn btn-gold" disabled={saving} onClick={async function(){setSaving(true);try{await onSave(item.id,f);onClose();}catch(e){alert(e.message);setSaving(false);}}}>
+        {saving?"Saving...":"⚡ Update SharePoint"}</button></div>
+  </Modal>);
+}
+
+function Overview({user,items,loading}){
+  var first=(user?.name||user?.username||"there").split(" ")[0];
+  var open=items.filter(function(i){return !["Closed","Approved"].includes(i.Status);});
+  var overdue=open.filter(isOverdue);
+  var projects=[...new Set(items.map(function(i){return i.Project;}).filter(Boolean))].sort();
+  var projOD={};overdue.forEach(function(i){var p=i.Project||"?";projOD[p]=(projOD[p]||0)+1;});
+  return(<div>
+    <div className="section-head"><div className="section-title">Welcome back, <span>{first}</span></div><div className="section-sub">DEI Project Truth — your live PMO control plane</div></div>
+    <div className="cb"><div style={{fontSize:24}}>🔗</div><div style={{flex:1}}><div style={{fontWeight:600,fontSize:14,color:"var(--green)"}}>Connected to SharePoint</div><div style={{fontSize:12,color:"#8a9baa",marginTop:2}}><a href={CONFIG.siteUrl} target="_blank" rel="noreferrer" style={{color:"#779d36"}}>distributedei.sharepoint.com</a></div></div><div className="live-dot">Live</div></div>
+    {loading?<div className="loading"><div className="spinner"/></div>:<div>
+      <div className="kpi-grid">
+        <div className="kpi-card good"><div className="kpi-label">Total Items</div><div className="kpi-value">{items.length}</div><div className="kpi-sub green">In SharePoint</div></div>
+        <div className="kpi-card"><div className="kpi-label">Open</div><div className="kpi-value">{open.length}</div><div className="kpi-sub">Active</div></div>
+        <div className={"kpi-card "+(overdue.length>0?"alert":"")}><div className="kpi-label">Overdue</div><div className="kpi-value">{overdue.length}</div><div className={"kpi-sub "+(overdue.length>0?"red":"green")}>{overdue.length>0?"Action required":"All on track"}</div></div>
+        <div className="kpi-card"><div className="kpi-label">Projects</div><div className="kpi-value">{projects.length}</div><div className="kpi-sub">Active jobs</div></div>
+      </div>
+      {overdue.length>0&&<div style={{background:"rgba(224,82,82,0.06)",border:"1px solid rgba(224,82,82,0.2)",borderRadius:10,padding:20,marginBottom:24}}>
+        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,color:"var(--red)",marginBottom:12}}>⚠ OVERDUE BY PROJECT</div>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>{Object.entries(projOD).sort(function(a,b){return b[1]-a[1];}).map(function(e){return <span key={e[0]} style={{padding:"4px 12px",borderRadius:20,fontSize:12,fontWeight:600,background:"rgba(224,82,82,0.12)",color:"var(--red)",border:"1px solid rgba(224,82,82,0.3)"}}>{e[0]}: {e[1]}</span>;})}</div>
+      </div>}
+      <div style={{background:"linear-gradient(135deg,rgba(15,32,64,0.7),rgba(10,22,40,0.8))",border:"1px solid var(--border)",borderRadius:10,padding:20}}>
+        <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:16,fontWeight:700,marginBottom:12}}>PROJECT BREAKDOWN</div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:10}}>
+          {projects.map(function(p){var pi=items.filter(function(i){return i.Project===p;});var po=pi.filter(isOverdue);return <div key={p} style={{padding:12,background:"rgba(10,22,40,0.5)",border:"1px solid "+(po.length>0?"rgba(224,82,82,0.3)":"var(--border)"),borderRadius:8}}><div style={{fontWeight:700,fontSize:14,marginBottom:4}}>{p}</div><div style={{fontSize:12,color:"#8a9baa"}}>{pi.length} items · {pi.filter(function(i){return !["Closed","Approved"].includes(i.Status);}).length} open{po.length>0&&<span style={{color:"var(--red)",marginLeft:4}}>· {po.length} overdue</span>}</div></div>;})}
+        </div>
+      </div>
+    </div>}
+  </div>);
+}
+
+function Engineering({items,loading,error,onReload,onAdd,onEdit}){
+  const[projF,setProjF]=useState("all");const[personF,setPersonF]=useState("all");const[typeF,setTypeF]=useState("all");const[statF,setStatF]=useState("all");
+  const[modal,setModal]=useState(null);const[sel,setSel]=useState(null);const[expanded,setExpanded]=useState(null);const[success,setSuccess]=useState(null);
+  var projects=useMemo(function(){return[...new Set(items.map(function(i){return i.Project;}).filter(Boolean))].sort();},[items]);
+  var people=useMemo(function(){var m={};items.forEach(function(i){var p=i.AssignedTo||"Unassigned";m[p]=(m[p]||0)+1;});return Object.entries(m).sort(function(a,b){return b[1]-a[1];});},[items]);
+  var flash=function(msg){setSuccess(msg);setTimeout(function(){setSuccess(null);},3000);};
+  var overdue=items.filter(isOverdue);
+  var projOD={};overdue.forEach(function(i){var p=i.Project||"?";projOD[p]=(projOD[p]||0)+1;});
+  var filtered=useMemo(function(){return items.filter(function(i){return(projF==="all"||i.Project===projF)&&(personF==="all"||((i.AssignedTo||"Unassigned")===personF))&&(typeF==="all"||i.ItemType===typeF)&&(statF==="all"||(statF==="overdue"?isOverdue(i):i.Status===statF));}).sort(function(a,b){var ao=isOverdue(a)?0:1,bo=isOverdue(b)?0:1;if(ao!==bo)return ao-bo;if(!a.DueDate)return 1;if(!b.DueDate)return-1;return new Date(a.DueDate)-new Date(b.DueDate);});},[items,projF,personF,typeF,statF]);
+
+  return(<div>
+    <div className="section-head" style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+      <div><div className="section-title">Engineering <span>Log</span></div><div className="section-sub">RFIs & Submittals — {items.length} items across {projects.length} projects</div></div>
+      <div style={{display:"flex",gap:8}}><button className="btn btn-ghost btn-sm" onClick={onReload}>↺ Refresh</button><button className="btn btn-gold btn-sm" onClick={function(){setModal("add");}}>+ Add Item</button></div>
+    </div>
+    {error&&<div className="be">⚠ {error}</div>}
+    {success&&<div className="bs">✅ {success}</div>}
+    <div className="kpi-grid">
+      <div className={"kpi-card "+(statF==="all"&&projF==="all"?"ac":"")} onClick={function(){setStatF("all");setProjF("all");setPersonF("all");}}><div className="kpi-label">Total</div><div className="kpi-value">{items.length}</div><div className="kpi-sub">All items</div></div>
+      <div className={"kpi-card "+(overdue.length>0?"alert ":"")+(statF==="overdue"?"ac":"")} onClick={function(){setStatF(statF==="overdue"?"all":"overdue");}}><div className="kpi-label">Overdue</div><div className="kpi-value">{overdue.length}</div><div className={"kpi-sub "+(overdue.length>0?"red":"green")}>{overdue.length>0?"Click to filter":"On track"}</div></div>
+      <div className={"kpi-card "+(typeF==="RFI"?"ac":"")} onClick={function(){setTypeF(typeF==="RFI"?"all":"RFI");}}><div className="kpi-label">RFIs</div><div className="kpi-value">{items.filter(function(i){return i.ItemType==="RFI";}).length}</div><div className="kpi-sub">{items.filter(function(i){return i.ItemType==="RFI"&&!["Closed","Approved"].includes(i.Status);}).length} open</div></div>
+      <div className={"kpi-card "+(typeF==="Submittal"?"ac":"")} onClick={function(){setTypeF(typeF==="Submittal"?"all":"Submittal");}}><div className="kpi-label">Submittals</div><div className="kpi-value">{items.filter(function(i){return i.ItemType==="Submittal";}).length}</div><div className="kpi-sub">{items.filter(function(i){return i.ItemType==="Submittal"&&!["Closed","Approved"].includes(i.Status);}).length} open</div></div>
+    </div>
+
+    <div className="ptabs">
+      <div className={"ptab "+(projF==="all"?"active":"")} onClick={function(){setProjF("all");}}>All Jobs <span className="tc">({items.length})</span></div>
+      {projects.map(function(p){var cnt=items.filter(function(i){return i.Project===p;}).length;return <div key={p} className={"ptab "+(projF===p?"active":"")+(projOD[p]?" hod":"")} onClick={function(){setProjF(projF===p?"all":p);}}>{p} <span className="tc">({cnt})</span></div>;})}
+    </div>
+
+    {people.length>1&&<div className="pbar">
+      <span style={{fontSize:10,color:"#8a9baa",textTransform:"uppercase",letterSpacing:1,fontWeight:700,marginRight:4}}>Person:</span>
+      <div className={"pchip "+(personF==="all"?"active":"")} onClick={function(){setPersonF("all");}}>All</div>
+      {people.slice(0,15).map(function(e){var name=e[0],cnt=e[1];var od=overdue.filter(function(i){return(i.AssignedTo||"Unassigned")===name;}).length;return <div key={name} className={"pchip "+(personF===name?"active":"")+(od>0?" hod":"")} onClick={function(){setPersonF(personF===name?"all":name);}}>{name.split(" ")[0]} <span style={{color:"#8a9baa",marginLeft:3,fontSize:10}}>({cnt}){od>0?" ⚠"+od:""}</span></div>;})}
+    </div>}
+
+    <div className="tw">
+      <div className="th">
+        <div className="tt">{projF!=="all"?projF:"All Projects"} — {filtered.length} items{statF==="overdue"&&<span style={{color:"var(--red)",marginLeft:8}}>⚠ Overdue only</span>}</div>
+        <select className="fsel" value={statF} onChange={function(e){setStatF(e.target.value);}}><option value="all">All Statuses</option><option value="overdue">⚠ Overdue</option>{STS.map(function(s){return <option key={s}>{s}</option>;})}</select>
+      </div>
+      {loading?<div className="loading"><div className="spinner"/></div>:filtered.length===0?<div style={{textAlign:"center",padding:50,color:"#8a9baa"}}><div style={{fontSize:32,marginBottom:8,opacity:0.5}}>📋</div><div>No items match filters.</div></div>:
+      <div><table><thead><tr><th>#</th><th>Type</th><th>Title</th><th>Project</th><th>Status</th><th>Ball in Court</th><th>Assigned</th><th>Due</th><th>Aging</th><th></th></tr></thead>
+      <tbody>{filtered.map(function(item){return <React.Fragment key={item.id}>
+        <tr className={isOverdue(item)?"odr":""} style={{cursor:"pointer"}} onClick={function(){setExpanded(expanded===item.id?null:item.id);}}>
+          <td><span className="mono">{item.Number||"—"}</span></td>
+          <td><span style={{background:item.ItemType==="RFI"?"rgba(21,56,108,0.4)":"rgba(200,168,75,0.15)",color:item.ItemType==="RFI"?"#7eb3e8":"var(--gold-lt)",padding:"2px 8px",borderRadius:4,fontSize:11,fontWeight:700,fontFamily:"'Barlow Condensed',sans-serif"}}>{item.ItemType||"—"}</span></td>
+          <td><div style={{fontWeight:600}}>{item.Title}</div>{item.Subject&&item.Subject!==item.Title&&<div style={{color:"#8a9baa",fontSize:11,marginTop:1}}>{item.Subject}</div>}</td>
+          <td style={{color:"#6b7c8a",fontSize:12}}>{item.Project||"—"}</td>
+          <td><Badge status={item.Status}/></td>
+          <td><BIC val={item.BallInCourt}/></td>
+          <td style={{color:"#6b7c8a",fontSize:12}}>{item.AssignedTo||"—"}</td>
+          <td style={{color:"#8a9baa",fontSize:12}}>{fmtDate(item.DueDate)}</td>
+          <td><Aging date={item.DueDate} status={item.Status}/></td>
+          <td><button className="btn btn-ghost btn-sm" onClick={function(e){e.stopPropagation();setSel(item);setModal("edit");}}>✏</button></td>
+        </tr>
+        {expanded===item.id&&<tr><td colSpan="10" style={{padding:0,background:"transparent"}}>
+          <div className="dp">
+            <div className="dg">
+              <div><div className="dl">Number</div><div className="dv">{item.Number||"—"}</div></div>
+              <div><div className="dl">Project</div><div className="dv">{item.Project||"—"}</div></div>
+              <div><div className="dl">Type</div><div className="dv">{item.ItemType||"—"}</div></div>
+              <div><div className="dl">Status</div><div className="dv"><Badge status={item.Status}/></div></div>
+              <div><div className="dl">Ball in Court</div><div className="dv"><BIC val={item.BallInCourt}/></div></div>
+              <div><div className="dl">Assigned To</div><div className="dv">{item.AssignedTo||"—"}</div></div>
+              <div><div className="dl">Due Date</div><div className="dv">{fmtDate(item.DueDate)}</div></div>
+              <div><div className="dl">Response Date</div><div className="dv">{fmtDate(item.ResponseDate)}</div></div>
+              <div><div className="dl">Aging</div><div className="dv"><Aging date={item.DueDate} status={item.Status}/></div></div>
+            </div>
+            {item.Description&&<div style={{marginBottom:12}}><div className="dl">Description</div><div style={{color:"#6b7c8a",fontSize:13,lineHeight:1.5}}>{item.Description}</div></div>}
+            {item.EvidenceLink&&<div style={{marginBottom:12}}><div className="dl">Evidence</div><a href={item.EvidenceLink} target="_blank" rel="noreferrer" style={{color:"#779d36",fontSize:13}}>📎 {item.EvidenceLink}</a></div>}
+            <div style={{display:"flex",gap:8,marginTop:12}}>
+              <button className="btn btn-gold btn-sm" onClick={function(){setSel(item);setModal("edit");}}>✏ Edit All Fields</button>
+              {!["Closed","Approved"].includes(item.Status)&&<button className="btn btn-primary btn-sm" onClick={async function(){try{await onEdit(item.id,{Status:"Approved"});flash("Approved ✓");}catch(e){alert(e.message);}}}>✓ Approve</button>}
+              {item.Status!=="Closed"&&<button className="btn btn-ghost btn-sm" onClick={async function(){try{await onEdit(item.id,{Status:"Closed"});flash("Closed ✓");}catch(e){alert(e.message);}}}>Archive</button>}
+            </div>
+          </div>
+        </td></tr>}
+      </React.Fragment>;})}</tbody></table></div>}
+    </div>
+    {modal==="add"&&<AddModal projects={projects} onClose={function(){setModal(null);}} onSave={async function(f){await onAdd(f);flash("Added ✓");}}/>}
+    {modal==="edit"&&sel&&<EditModal item={sel} projects={projects} onClose={function(){setModal(null);}} onSave={async function(id,f){await onEdit(id,f);flash("Updated ✓");}}/>}
+  </div>);
+}
+
+function ComingSoon({title,listName}){
+  return(<div><div className="section-head"><div className="section-title">{title}</div></div>
+    <div className="cs"><div style={{fontSize:48,marginBottom:16,opacity:0.6}}>🔜</div><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,marginBottom:8}}>SharePoint List Required</div><div style={{color:"#8a9baa",fontSize:14,marginBottom:24}}>Create <code>{listName}</code> on your DEI site to enable this view.</div><a href={CONFIG.siteUrl} target="_blank" rel="noreferrer" className="btn btn-gold">Open SharePoint →</a></div></div>);
+}
+
+const EXEC_DATA=[{"CLIENT":"AES","re":"Exeter","Category":"Final Complete","BD":"Prateek","Owner Contact":"Ben Raymond","Owner Email":"benjamin.raymond@AES.COM","Owner Phone":"603-731-3710","STATUS":"Won","PO Status":"Executed","NTP":"2024-02-01","MC":"2024-08-01","SC":"2024-12-01","ADDRESS":"91 A-B Ten Rod Rd","CITY, STATE":"Exeter, Rhode Island 02822","State":"RI","MODULE TYPE":"AstroEnergy CHSM72(DG)/F-BH","MODULE SIZE (W)":410,"# OF MODULES":30048,"DC SIZE (MW)":12.5,"AC SIZE (MW)":10,"BID/WATT":1.259,"BID (Revenue)":15737060,"TRACKING TYPE":"Fix-Tilt","Design":"IFC","Performance Test":"Passed 4/9/2025","Closeout Status":"RIPDES closeout, final lien waivers","Stabilization Status":"Done","Critical Path":"Done","Billings":"nothing left","Comments":"10/29: J&J finished work and final documents sent to town to close-out the permit."},{"CLIENT":"NextEra","re":"Spencer","Category":"Finished Construction","BD":"Prateek","Owner Contact":"Andy Solomon","Owner Email":"Andy.Solomon@nexteraenergy.com","STATUS":"Won","PO Status":"Executed","NTP":"2024-04-01","ADDRESS":"14 North Brookfield Rd","CITY, STATE":"Spencer, Massachusetts","State":"MA","DC SIZE (MW)":3.18,"AC SIZE (MW)":2.2,"BID/WATT":1.631,"BID (Revenue)":5186362,"TRACKING TYPE":"Fix-Tilt","Interconnection":"2025-04-29","Witness Test":"2025-04-29","Performance Test":"2025-05-15","Closeout Status":"Q3 2025","Critical Path":"Growing Grass","Billings":"nothing left","Comments":"12/03: Invoice accepted, payment ETA by 12/31."},{"CLIENT":"Syncarpha (ARC)","re":"Acton","Category":"Under Construction","BD":"PT","Owner Contact":"Josh Nertin","Owner Email":"josh.neretin@syncarpha.com","STATUS":"Won","PO Status":"Executed","NTP":"2024-12-01","MC":"2025-06-27","SC":"2025-09-21","ADDRESS":"50 Independance Rd","CITY, STATE":"Acton, MA","State":"MA","DC SIZE (MW)":7.09,"AC SIZE (MW)":4.98,"BID/WATT":1.625,"BID (Revenue)":11519637,"Interconnection":"Complete - Waiting on Utility","Witness Test":"7/15 target","Performance Test":"8/1-8/30","Critical Path":"Battery inspection, interconnection delayed, Grass","Billings":"Remaining: Final 576k plus 50k CO","Building Permit":"Complete","Electrical Permit":"Complete","SWPPP Permit":"Complete","Mobilization":"Complete","Comments":"01/14: DEI working on IE checklist. ETA: 1/30. FC Open items: Seeding + SWPPP permit + Final Binder. Still having issues with RS485/ethernet."},{"CLIENT":"NextEra","re":"Townline Solar","Category":"Under Construction","BD":"Jonas","Owner Contact":"Andy Solomon","Owner Email":"Andy.Solomon@nexteraenergy.com","STATUS":"Won","PO Status":"Executed","NTP":"2025-02-01","MC":"2025-08-01","SC":"2025-10-15","ADDRESS":"6714 Townline Road","CITY, STATE":"Wheatfield, New York","State":"NY","DC SIZE (MW)":7.02,"AC SIZE (MW)":5,"BID/WATT":1.187,"BID (Revenue)":8333155,"TRACKING TYPE":"Fix-Tilt","Building Permit":"Received","Electrical Permit":"Received","SWPPP Permit":"Complete","Mobilization":"Complete","Interconnection":"2025-12-01","Witness Test":"Q1 2026","Performance Test":"Q2 2026","Critical Path":"Interconnection, Trees, Demob, Getting paid before MEI transfer","Billings":"Remaining: Guaranteed Provisional 434k, Final 434k","Comments":"01/14: Updated I/C docs sent back to Ngrid, awaiting WT date. Jonas working on billing partial milestone."},{"CLIENT":"Generate","re":"Cold Springs","Category":"Under Construction","BD":"DC","Owner Contact":"Greg Wong","Owner Email":"greg.wong@generatecapital.com","STATUS":"Won","PO Status":"Executed","NTP":"2025-07-01","MC":"2025-12-20","SC":"Q2 2026","ADDRESS":"3400 Cold Springs Road, Lysander, NY","CITY, STATE":"Lysander, NY","State":"NY","Building Permit":"Received","Electrical Permit":"Received","SWPPP Permit":"Complete","Mobilization":"Complete","Interconnection":"2026-06-01","Witness Test":"Q3/2026","Critical Path":"Refusals 26% @ 9% installed - SWGR. Post delivery critical path","Billings":"Next: Post Install 461k, then racking install 742k","Comments":"01/14: GRT moving to NF A. End of month target for MC."},{"CLIENT":"Generate","re":"West Genesee","Category":"Under Construction","BD":"DC","Owner Contact":"Peter Plaks","Owner Email":"greg.wong@generatecapital.com","STATUS":"Won","PO Status":"Executed","NTP":"2025-07-01","MC":"2025-12-20","SC":"Q2 2026","CITY, STATE":"Lysander, NY","State":"NY","Building Permit":"Received","Electrical Permit":"Received","SWPPP Permit":"Complete","Mobilization":"Complete","Interconnection":"2026-06-01","Critical Path":"SWGR","Billings":"Next: Substantial $168k","Comments":"01/14: IE still reviewing photo checklists. Expecting MC in 3-4 weeks."},{"CLIENT":"NexAmp","re":"Van Buren","Category":"Under Construction","BD":"Jonas","Owner Contact":"Peter Flax","Owner Email":"pplaks@nexamp.com","STATUS":"Won","PO Status":"Executed","NTP":"2025-07-02","MC":"Q1 2026","SC":"Q2 2026","CITY, STATE":"Baldwinsville, NY","State":"NY","DC SIZE (MW)":4.87,"AC SIZE (MW)":3.786,"BID/WATT":1.601,"BID (Revenue)":7795008,"TRACKING TYPE":"Fix-Tilt","Building Permit":"Need - Landfill compliance","Design":"90% Draft","Interconnection":"Q2 2026","Critical Path":"Ballast blocks - DC Solar. Terrasmart delivery delays for racking","Billings":"Next: Rack/Mod install 400k","Comments":"01/14: Cable Tray coming Friday. MV starting next week. Still awaiting DAS/Aux Panel."},{"CLIENT":"EDPR","re":"Glen Hope","Category":"Under Construction","BD":"PT","Owner Contact":"Nicole Meschke","Owner Email":"NICOLE.MESCHKE@EDP.COM","STATUS":"Won","PO Status":"Executed","NTP":"2025-08-01","MC":"Q1 2026","SC":"Q2 2026","CITY, STATE":"Glen Hope, PA","State":"PA","Design":"IFC","Building Permit":"2025-08-15","SWPPP Permit":"State Issued - TRC","Mobilization":"2025-08-20","Interconnection":"2025-12-01","Witness Test":"Q1 2026","Critical Path":"Material Delivery Mid September","Billings":"Next: Substantial 291k","Comments":"01/14: New WT date 2/20. Broken X0 Bushing on XFMR, awaiting MGM response on tech arrival."},{"CLIENT":"Bluewave","re":"Northfield A (ESS)","Category":"LNTP","BD":"Prateek","Owner Contact":"Frank Robbins","Owner Email":"frobbins@bluewave.energy","STATUS":"Won","PO Status":"Executed","NTP":"2025-08-15","MC":"Q1 2026","SC":"Q2 2026","CITY, STATE":"Northfield, MA","State":"MA","DC SIZE (MW)":6.008,"BID/WATT":1.631,"BID (Revenue)":9799166,"TRACKING TYPE":"SAT","Design":"IFC","Mobilization":"2025-08-15","Interconnection":"Q2 2026","Critical Path":"Fire department, Solectria Skids (6 Month Lead), Transformers (Late Jan), Aux Panelboards","Billings":"Next: Civil and Site work ~471k","Comments":"01/14: Pile complete expected 1/23. 29 refusals. Trenching 1600/3500 done. Pads opening after 1/28."},{"CLIENT":"Bluewave","re":"Northfield B (ESS)","Category":"LNTP","BD":"Prateek","Owner Contact":"Frank Robbins","Owner Email":"svenkat@bluewave.energy","STATUS":"Won","PO Status":"Executed","NTP":"2025-08-15","MC":"Q1 2026","SC":"Q2 2026","CITY, STATE":"Northfield, MA","State":"MA","DC SIZE (MW)":3.941,"BID/WATT":1.807,"BID (Revenue)":7119783,"TRACKING TYPE":"SAT","Design":"IFC","Interconnection":"Q2 2026","Critical Path":"Fire department, Solectria Skids, Transformers (Late Jan), Aux Panelboards","Billings":"Next: Civil and Site work ~400k","Comments":"01/14: Need to know when Posts getting installed. Open main trenches while waiting for conduit/piles."},{"CLIENT":"Pure Sky","re":"Spartan","Category":"LNTP","BD":"Prateek","Owner Contact":"Jacob Phalen","Owner Email":"jacob.phalen@pureskyenergy.com","STATUS":"Won","PO Status":"Executed","NTP":"Q4 2025","SC":"2026-12-31","CITY, STATE":"Queensbury, NY","State":"NY","DC SIZE (MW)":6.47,"AC SIZE (MW)":4.998,"BID/WATT":1.458,"BID (Revenue)":9436760,"TRACKING TYPE":"Fix-Tilt","Design":"IFC","Interconnection":"2025-10-01","Witness Test":"2025-12-01","Performance Test":"2026-04-01","Critical Path":"Financial Approval, Racking Engineering review","Billings":"Next: Mob 1.4M","Comments":"01/14: Expecting term sheet from Puresky 1/15. Expecting permit approval end of month."},{"CLIENT":"AES","re":"Saphire Solar","Category":"LNTP","BD":"Prateek","Owner Contact":"Diego Barros","Owner Email":"diego.barros@aes.com","STATUS":"Won","PO Status":"Executed","NTP":"Q3 2025","MC":"Q3 2026","CITY, STATE":"Jefferson County, NY","State":"NY","DC SIZE (MW)":3.368,"AC SIZE (MW)":2.4,"BID/WATT":1.669,"BID (Revenue)":5619398,"TRACKING TYPE":"SAT","Design":"30%","Mobilization":"2026-03-01","Interconnection":"2026-09-01","Critical Path":"LNTP - Nov 1 NTP","Billings":"NTP 400k","Comments":"01/14: Expecting IFP set next week. Awaiting permit issuance based on Bond approval by town."},{"CLIENT":"Catalyze","re":"Ontario 4","Category":"Pipeline","BD":"David","STATUS":"Verbal Award","PO Status":"Under Client Review","CITY, STATE":"Clifton Springs, NY","State":"NY","Critical Path":"Fixed tilt - Layout and energy due","Comments":"01/14: Awaiting funding update."},{"CLIENT":"Aspen","re":"Moreau A","Category":"Pipeline","Billings":"LNTP Billed, NTP 700k Next","Comments":"01/14: Expecting NTP end of Jan. Procurement in process. IFC 2/6, Buyout 2/29. Building permit in hand."},{"CLIENT":"Aspen","re":"Moreau B","Category":"Pipeline","Billings":"LNTP Billed, NTP 580k Next","Comments":"01/14: Expecting NTP end of Jan. Procurement in process."},{"CLIENT":"Clean Capital","re":"Skunkhill","Category":"Pipeline","BD":"David","Critical Path":"Layouts Energy models for Clean Capital","Comments":"01/07: Expecting close CC/EDP end of Jan. EPC close Feb. PTO June 2027."},{"CLIENT":"NextEra","re":"Bodhi","Category":"Pipeline","Billings":"$95,198 Billed, due 1/9","Comments":"01/07: DER scheduled for pulling power to M box to Tracker. ~1 day of work."},{"CLIENT":"MEI","re":"Thomas Hill","Category":"Pipeline","BD":"Jonas","Owner Contact":"Mitchel Hecht","STATUS":"Bid Sent","PO Status":"Under Client Review","CITY, STATE":"Malone, NY","State":"NY","DC SIZE (MW)":6.72,"AC SIZE (MW)":4.5,"BID/WATT":1.928,"BID (Revenue)":9600000,"TRACKING TYPE":"Fix-Tilt","Comments":"01/14: Updating price to Fixed Tilt."},{"CLIENT":"EDPR","re":"Patton","Category":"Pipeline","Comments":"4MWDC. 01/14: Kick off 1/15. NTP Mid Feb."},{"CLIENT":"EDPR","re":"Windber","Category":"Pipeline","Comments":"4MWDC. 01/14: Kick off 1/15. NTP Mid Feb."},{"CLIENT":"AES","re":"Stony Creek","Category":"Pipeline","CITY, STATE":"NY","State":"NY","Comments":"4.5MWDC. 01/14: Expecting contract 01/19. NTP April 1."},{"CLIENT":"BW","re":"Acton ESS","Category":"Pipeline","Comments":"01/14: LNTP signed, EPC in Feb, NTP in March."}];
+
+function catClass(c){if(!c)return"cat-pipe";c=c.trim().toLowerCase();if(c==="under construction")return"cat-uc";if(c==="finished construction"||c==="final complete")return"cat-done";if(c.includes("lntp"))return"cat-lntp";return"cat-pipe";}
+function catLabel(c){if(!c)return"Pipeline";c=c.trim();if(c==="Under Construction")return"Active";if(c==="Finished Construction"||c==="Final Complete")return c;if(c.toUpperCase().includes("LNTP"))return"LNTP";if(c==="Pipeline")return"Pipeline";return c;}
+function fmtMoney(v){if(!v||v===0)return"—";if(v>=1000000)return"$"+((v/1000000).toFixed(1))+"M";if(v>=1000)return"$"+((v/1000).toFixed(0))+"k";return"$"+v;}
+function getLatestComment(c){if(!c)return"";var lines=c.split("\\n").filter(Boolean);return lines[lines.length-1]||c;}
+
+function ExecRollup(){
+  const[search,setSearch]=useState("");
+  const[catFilter,setCatFilter]=useState("all");
+  const[expanded,setExpanded]=useState(null);
+  const[stateFilter,setStateFilter]=useState("all");
+
+  var cats=useMemo(function(){var m={};EXEC_DATA.forEach(function(p){var c=catLabel(p.Category);m[c]=(m[c]||0)+1;});return Object.entries(m).sort(function(a,b){return b[1]-a[1];});},[]);
+  var states=useMemo(function(){var m={};EXEC_DATA.forEach(function(p){if(p.State){var s=p.State.trim();m[s]=(m[s]||0)+1;}});return Object.entries(m).sort(function(a,b){return b[1]-a[1];});},[]);
+
+  var filtered=useMemo(function(){return EXEC_DATA.filter(function(p){
+    var matchSearch=!search||(p.re||"").toLowerCase().includes(search.toLowerCase())||(p.CLIENT||"").toLowerCase().includes(search.toLowerCase())||(p["CITY, STATE"]||"").toLowerCase().includes(search.toLowerCase());
+    var matchCat=catFilter==="all"||catLabel(p.Category)===catFilter;
+    var matchState=stateFilter==="all"||(p.State||"").trim()===stateFilter;
+    return matchSearch&&matchCat&&matchState;
+  });},[search,catFilter,stateFilter]);
+
+  var totalRev=EXEC_DATA.reduce(function(s,p){return s+(p["BID (Revenue)"]||0);},0);
+  var activeRev=EXEC_DATA.filter(function(p){var c=(p.Category||"").trim().toLowerCase();return c==="under construction"||c.includes("lntp");}).reduce(function(s,p){return s+(p["BID (Revenue)"]||0);},0);
+  var totalMW=EXEC_DATA.reduce(function(s,p){return s+(p["DC SIZE (MW)"]||0);},0);
+  var activeCnt=EXEC_DATA.filter(function(p){var c=(p.Category||"").trim().toLowerCase();return c==="under construction";}).length;
+  var lntpCnt=EXEC_DATA.filter(function(p){return(p.Category||"").toUpperCase().includes("LNTP");}).length;
+  var pipeCnt=EXEC_DATA.filter(function(p){var c=(p.Category||"").trim().toLowerCase();return c==="pipeline"||(!p.Category);}).length;
+
+  return(<div>
+    <div className="section-head" style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+      <div><div className="section-title">Executive <span>Roll-up</span></div><div className="section-sub">{EXEC_DATA.length} projects — portfolio operations dashboard</div></div>
+      <div style={{display:"flex",gap:8,alignItems:"center"}}><span style={{fontSize:10,color:"#8a9baa",textTransform:"uppercase",letterSpacing:1}}>Source: Excel</span></div>
+    </div>
+
+    <div className="exec-kpis">
+      <div className="kpi-card good"><div className="kpi-label">Total Projects</div><div className="kpi-value">{EXEC_DATA.length}</div><div className="kpi-sub green">Portfolio</div></div>
+      <div className="kpi-card" style={{borderColor:"rgba(46,204,138,0.3)"}}><div className="kpi-label">Active Construction</div><div className="kpi-value">{activeCnt}</div><div className="kpi-sub green">Under construction</div></div>
+      <div className="kpi-card"><div className="kpi-label">LNTP</div><div className="kpi-value">{lntpCnt}</div><div className="kpi-sub">Limited notice</div></div>
+      <div className="kpi-card"><div className="kpi-label">Pipeline</div><div className="kpi-value">{pipeCnt}</div><div className="kpi-sub">Pre-NTP</div></div>
+      <div className="kpi-card"><div className="kpi-label">Total Revenue</div><div className="kpi-value">{fmtMoney(totalRev)}</div><div className="kpi-sub">All projects</div></div>
+      <div className="kpi-card"><div className="kpi-label">Active Revenue</div><div className="kpi-value">{fmtMoney(activeRev)}</div><div className="kpi-sub green">Construction + LNTP</div></div>
+      <div className="kpi-card"><div className="kpi-label">Total DC MW</div><div className="kpi-value">{totalMW.toFixed(1)}</div><div className="kpi-sub">Portfolio capacity</div></div>
+    </div>
+
+    <div className="exec-filters">
+      <input className="exec-search" placeholder="Search projects, clients, locations..." value={search} onChange={function(e){setSearch(e.target.value);}}/>
+      <div className="ptabs" style={{flex:1,marginBottom:0}}>
+        <div className={"ptab "+(catFilter==="all"?"active":"")} onClick={function(){setCatFilter("all");}}>All <span className="tc">({EXEC_DATA.length})</span></div>
+        {cats.map(function(e){return <div key={e[0]} className={"ptab "+(catFilter===e[0]?"active":"")} onClick={function(){setCatFilter(catFilter===e[0]?"all":e[0]);}}>{e[0]} <span className="tc">({e[1]})</span></div>;})}
+      </div>
+    </div>
+    {states.length>1&&<div className="pbar" style={{marginBottom:20}}>
+      <span style={{fontSize:10,color:"#8a9baa",textTransform:"uppercase",letterSpacing:1,fontWeight:700,marginRight:4}}>State:</span>
+      <div className={"pchip "+(stateFilter==="all"?"active":"")} onClick={function(){setStateFilter("all");}}>All</div>
+      {states.map(function(e){return <div key={e[0]} className={"pchip "+(stateFilter===e[0]?"active":"")} onClick={function(){setStateFilter(stateFilter===e[0]?"all":e[0]);}}>{e[0]} <span style={{color:"#8a9baa",fontSize:10,marginLeft:3}}>({e[1]})</span></div>;})}
+    </div>}
+
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      {filtered.map(function(p,i){
+        var isOpen=expanded===i;
+        var rev=p["BID (Revenue)"];
+        var dc=p["DC SIZE (MW)"];
+        var ac=p["AC SIZE (MW)"];
+        var permitFields=["Building Permit","Electrical Permit","Driveway permit","SWPPP Permit","Landfill Permits"];
+        var milestoneFields=["NTP","MC","SC","Interconnection","Witness Test","Performance Test"];
+
+        return <div key={i} className="exec-card">
+          <div className="exec-card-head" onClick={function(){setExpanded(isOpen?null:i);}}>
+            <div style={{flex:1}}>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <div className="exec-proj-name">{p.re||"—"}</div>
+                <span className={"exec-cat "+catClass(p.Category)}>{catLabel(p.Category)}</span>
+              </div>
+              <div className="exec-proj-client">{(p.CLIENT||"").trim()} {p["CITY, STATE"]?("• "+(p["CITY, STATE"]||"").trim()):""} {dc?("• "+dc+" MW DC"):""} {rev?("• "+fmtMoney(rev)):""}</div>
+              {p["Critical Path"]&&p["Critical Path"]!=="Done"&&<div style={{marginTop:6,fontSize:11,color:"var(--red)",fontWeight:600}}>⚡ {p["Critical Path"].split("\\n")[0]}</div>}
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:12}}>
+              {p.Billings&&p.Billings!=="nothing left"&&<div style={{textAlign:"right"}}><div style={{fontSize:10,color:"#8a9baa",textTransform:"uppercase",letterSpacing:0.5}}>Billing</div><div style={{fontSize:12,color:"#779d36",fontWeight:600}}>{p.Billings}</div></div>}
+              <span style={{fontSize:16,color:"#c4d0dc",transition:"transform 0.2s",transform:isOpen?"rotate(180deg)":"rotate(0)"}}>▾</span>
+            </div>
+          </div>
+
+          {isOpen&&<div className="exec-detail">
+            <div className="exec-section">
+              <div className="exec-section-title">📊 Project Info</div>
+              <div className="exec-grid">
+                <div className="exec-field"><div className="exec-field-label">Client</div><div className="exec-field-value">{(p.CLIENT||"").trim()||"—"}</div></div>
+                <div className="exec-field"><div className="exec-field-label">Project</div><div className="exec-field-value">{p.re||"—"}</div></div>
+                <div className="exec-field"><div className="exec-field-label">BD Lead</div><div className="exec-field-value">{(p.BD||"").trim()||"—"}</div></div>
+                <div className="exec-field"><div className="exec-field-label">Status</div><div className="exec-field-value">{p.STATUS||"—"}</div></div>
+                <div className="exec-field"><div className="exec-field-label">PO Status</div><div className="exec-field-value">{p["PO Status"]||"—"}</div></div>
+                <div className="exec-field"><div className="exec-field-label">Location</div><div className="exec-field-value">{p["CITY, STATE"]||"—"}</div></div>
+                <div className="exec-field"><div className="exec-field-label">State</div><div className="exec-field-value">{(p.State||"").trim()||"—"}</div></div>
+                <div className="exec-field"><div className="exec-field-label">Tracking</div><div className="exec-field-value">{p["TRACKING TYPE"]||"—"}</div></div>
+                <div className="exec-field"><div className="exec-field-label">Design</div><div className="exec-field-value">{p.Design||"—"}</div></div>
+              </div>
+            </div>
+
+            {(p["Owner Contact"]||p["Owner Email"])&&<div className="exec-section">
+              <div className="exec-section-title">👤 Owner Contact</div>
+              <div className="exec-grid">
+                <div className="exec-field"><div className="exec-field-label">Contact</div><div className="exec-field-value">{(p["Owner Contact"]||"").trim()||"—"}</div></div>
+                <div className="exec-field"><div className="exec-field-label">Email</div><div className="exec-field-value">{p["Owner Email"]?<a href={"mailto:"+p["Owner Email"]} style={{color:"#779d36",fontSize:12}}>{p["Owner Email"]}</a>:"—"}</div></div>
+                {p["Owner Phone"]&&<div className="exec-field"><div className="exec-field-label">Phone</div><div className="exec-field-value">{p["Owner Phone"]}</div></div>}
+              </div>
+            </div>}
+
+            {(dc||rev)&&<div className="exec-section">
+              <div className="exec-section-title">💰 Financials & Capacity</div>
+              <div className="exec-grid">
+                {dc&&<div className="exec-field"><div className="exec-field-label">DC Size (MW)</div><div className="exec-field-value" style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:700}}>{dc}</div></div>}
+                {ac&&<div className="exec-field"><div className="exec-field-label">AC Size (MW)</div><div className="exec-field-value" style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:700}}>{ac}</div></div>}
+                {rev&&<div className="exec-field"><div className="exec-field-label">Revenue (Bid)</div><div className="exec-field-value" style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:700,color:"#779d36"}}>{fmtMoney(rev)}</div></div>}
+                {p["BID/WATT"]>0&&<div className="exec-field"><div className="exec-field-label">Bid/Watt</div><div className="exec-field-value">${p["BID/WATT"].toFixed(3)}</div></div>}
+                {p["# OF MODULES"]&&<div className="exec-field"><div className="exec-field-label">Modules</div><div className="exec-field-value">{(p["# OF MODULES"]).toLocaleString()}</div></div>}
+                {p["MODULE TYPE"]&&<div className="exec-field"><div className="exec-field-label">Module Type</div><div className="exec-field-value">{p["MODULE TYPE"]}</div></div>}
+              </div>
+            </div>}
+
+            <div className="exec-section">
+              <div className="exec-section-title">📅 Milestones</div>
+              <div className="exec-grid">
+                {milestoneFields.map(function(f){var v=p[f];if(!v)return null;return <div key={f} className="exec-field"><div className="exec-field-label">{f}</div><div className="exec-field-value">{typeof v==="string"&&v.match(/^\d{4}-\d{2}/)?fmtDate(v):v}</div></div>;})}
+              </div>
+            </div>
+
+            {permitFields.some(function(f){return p[f];})&&<div className="exec-section">
+              <div className="exec-section-title">🏛 Permits</div>
+              <div className="permit-grid">
+                {permitFields.map(function(f){var v=p[f];if(!v)return null;var isDone=(v||"").toLowerCase().includes("complete")||(v||"").toLowerCase().includes("received")||(v||"").toLowerCase().includes("approved")||(v||"").toLowerCase().includes("done");var isNeed=(v||"").toLowerCase().includes("need");var cls=isDone?"permit-done":isNeed?"permit-need":"permit-prog";return <div key={f} className={"permit-item "+cls}><span className="permit-label">{f.replace(" permit","").replace(" Permit","")}</span><span className="permit-val">{v}</span></div>;})}
+              </div>
+            </div>}
+
+            {p["Critical Path"]&&<div className="exec-section">
+              <div className="exec-section-title">🔴 Critical Path</div>
+              <div className="exec-critical">{p["Critical Path"]}</div>
+            </div>}
+
+            {p.Billings&&<div className="exec-section">
+              <div className="exec-section-title">💵 Billing Status</div>
+              <div className="exec-billing">{p.Billings}</div>
+            </div>}
+
+            {p.Comments&&<div className="exec-section">
+              <div className="exec-section-title">💬 Latest Notes</div>
+              <div className="exec-comments">{p.Comments}</div>
+            </div>}
+          </div>}
+        </div>;
+      })}
+    </div>
+    {filtered.length===0&&<div style={{textAlign:"center",padding:60,color:"#8a9baa"}}><div style={{fontSize:32,marginBottom:8,opacity:0.5}}>🔍</div>No projects match your filters.</div>}
+  </div>);
+}
+
+function Login({onLogin}){
+  const[loading,setLoading]=useState(false);const[error,setError]=useState(null);
+  var login=async function(){setLoading(true);setError(null);try{await msalInstance.initialize();var r=await msalInstance.loginPopup({scopes:SCOPES});onLogin(r.account);}catch(e){setError(e.message);setLoading(false);}};
+  return(<div className="login-screen"><div className="login-card">
+    <div><img src="logo.png" alt="Distributed Energy Infrastructure" style={{width:"80%",maxWidth:280,marginBottom:8}}/><div className="login-tagline">Building a Connected Future</div></div>
+    <div className="login-divider"/>
+    <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:22,fontWeight:700,marginBottom:8}}>Project Truth</div>
+    <div style={{fontSize:13,color:"#8a9baa",marginBottom:28,lineHeight:1.5}}>Sign in with your DEI Microsoft account to access the PMO control plane.</div>
+    {error&&<div className="be" style={{marginBottom:16,textAlign:"left"}}>⚠ {error}</div>}
+    <button className="ms-btn" onClick={login} disabled={loading}>
+      <svg width="20" height="20" viewBox="0 0 21 21"><rect x="1" y="1" width="9" height="9" fill="#F25022"/><rect x="11" y="1" width="9" height="9" fill="#7FBA00"/><rect x="1" y="11" width="9" height="9" fill="#00A4EF"/><rect x="11" y="11" width="9" height="9" fill="#FFB900"/></svg>
+      {loading?"Signing in...":"Sign in with Microsoft"}
+    </button>
+    <div style={{marginTop:24,fontSize:11,color:"#8a9baa"}}>Restricted to DEI accounts only</div>
+  </div></div>);
+}
+
+function App(){
+  const[user,setUser]=useState(null);const[view,setView]=useState("overview");const[ready,setReady]=useState(false);
+  const[items,setItems]=useState([]);const[loading,setLoading]=useState(true);const[error,setError]=useState(null);
+  useEffect(function(){msalInstance.initialize().then(function(){var a=msalInstance.getAllAccounts();if(a.length)setUser(a[0]);setReady(true);});},[]);
+  var load=useCallback(async function(){setLoading(true);setError(null);try{setItems(await getItems(CONFIG.lists.rfi));}catch(e){setError(e.message);}finally{setLoading(false);}},[]);
+  useEffect(function(){if(user)load();},[user,load]);
+  var handleAdd=async function(f){await addItem(CONFIG.lists.rfi,f);load();};
+  var handleEdit=async function(id,f){await editItem(CONFIG.lists.rfi,id,f);load();};
+  if(!ready)return <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh"}}><div className="spinner"/></div>;
+  if(!user)return <Login onLogin={setUser}/>;
+  var overdue=items.filter(isOverdue);
+  var nav=[{section:"PROJECT"},{id:"overview",icon:"🏠",label:"Overview"},{id:"executive",icon:"📊",label:"Executive Roll-up"},{section:"LOGS"},{id:"engineering",icon:"⚙",label:"Engineering Log",badge:overdue.length},{id:"owner",icon:"👤",label:"Owner Log"},{id:"permits",icon:"🏛",label:"Permits"},{id:"closeout",icon:"📋",label:"Closeout"}];
+  var titles={overview:"Overview",executive:"Executive Roll-up",engineering:"Engineering Log",owner:"Owner Log",permits:"Permit Matrix",closeout:"Closeout"};
+  return(<div className="app">
+    <div className="sidebar"><div className="sidebar-logo"><img src="logo.png" alt="DEI" style={{width:"100%",maxWidth:200}}/><div className="logo-tagline">Project Truth — PMO</div><div className="logo-divider"/></div>
+      <div className="nav">{nav.map(function(item,i){if(item.section)return <div key={i} className="nav-section">{item.section}</div>;return <div key={item.id} className={"nav-item "+(view===item.id?"active":"")} onClick={function(){setView(item.id);}}><span className="nav-icon">{item.icon}</span><span>{item.label}</span>{item.badge>0&&<span className="nav-badge">{item.badge}</span>}</div>;})}</div>
+      <div className="sidebar-user"><div className="user-name">{user.name||"User"}</div><div className="user-org">{user.username}</div><button className="signout-btn" onClick={function(){msalInstance.logoutPopup();setUser(null);}}>Sign out</button></div>
+    </div>
+    <div className="main">
+      <div className="topbar"><div className="topbar-title">{titles[view]}</div><div className="live-dot">SharePoint Connected</div></div>
+      <div className="content">
+        {view==="overview"&&<Overview user={user} items={items} loading={loading}/>}
+        {view==="executive"&&<ExecRollup/>}
+        {view==="engineering"&&<Engineering items={items} loading={loading} error={error} onReload={load} onAdd={handleAdd} onEdit={handleEdit}/>}
+        {view==="owner"&&<ComingSoon title="Owner Log" listName="DEI-BOM-Procurement"/>}
+        {view==="permits"&&<ComingSoon title="Permit Matrix" listName="DEI-Permit-Matrix"/>}
+        {view==="closeout"&&<ComingSoon title="Closeout Tracker" listName="DEI-Closeout-Items"/>}
+      </div>
+    </div>
+  </div>);
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
