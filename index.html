@@ -69,12 +69,39 @@
     .permit-label{font-size:9px;color:#8a9baa;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;}
     .permit-val{font-size:11px;font-weight:600;}
     ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:#f5f7fa;}::-webkit-scrollbar-thumb{background:#c4d0dc;border-radius:3px;}
+
+    /* ── V3 New Features ── */
+    .bulk-bar{background:linear-gradient(135deg,#375673,#2d4a63);border-radius:10px;padding:14px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:#fff;animation:slideDown 0.2s ease-out;}
+    @keyframes slideDown{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+    .bulk-bar-count{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;}
+    .summary-row td{background:#f0f7e8;font-weight:700;color:#375673;border-top:2px solid #779d36;font-family:'Barlow Condensed',sans-serif;font-size:14px;}
+    .view-toggle{display:flex;background:#fff;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;}.view-toggle-btn{padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;border:none;background:transparent;color:#8a9baa;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:1px;transition:all 0.2s;}.view-toggle-btn.active{background:rgba(119,157,54,0.12);color:#779d36;}
+    .kanban{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:16px;}
+    .kanban-col{background:#f8fafb;border:1px solid #e2e8f0;border-radius:10px;padding:12px;min-height:200px;}
+    .kanban-col-title{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:#375673;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid;display:flex;justify-content:space-between;align-items:center;}
+    .kanban-card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:all 0.15s;}.kanban-card:hover{box-shadow:0 2px 8px rgba(0,0,0,0.08);transform:translateY(-1px);}
+    .kanban-card-title{font-weight:600;font-size:12px;color:#375673;margin-bottom:4px;}.kanban-card-sub{font-size:10px;color:#8a9baa;}
+    .notif-panel{position:fixed;top:60px;right:0;width:380px;max-height:calc(100vh - 60px);background:#fff;border-left:1px solid #e2e8f0;box-shadow:-4px 0 24px rgba(0,0,0,0.08);z-index:150;overflow-y:auto;animation:slideIn 0.2s ease-out;}
+    @keyframes slideIn{from{transform:translateX(100%);}to{transform:translateX(0);}}
+    .notif-header{padding:20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:1;}
+    .notif-item{padding:14px 20px;border-bottom:1px solid #f0f4f8;cursor:pointer;transition:background 0.15s;}.notif-item:hover{background:#f8fafb;}
+    .notif-item.unread{background:rgba(119,157,54,0.04);border-left:3px solid #779d36;}
+    .notif-dot{position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid #fff;}
+    .req-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:14px;transition:all 0.15s;}.req-card:hover{box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+    .req-num{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#c4d0dc;width:32px;text-align:center;flex-shrink:0;}
+    .req-status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+    .req-built{background:var(--green);}.req-partial{background:var(--amber);}.req-planned{background:#c4d0dc;}
+    .role-switch{display:flex;align-items:center;gap:8px;padding:6px 12px;background:rgba(255,255,255,0.1);border-radius:6px;margin:8px 20px;cursor:pointer;font-size:11px;color:rgba(255,255,255,0.7);transition:all 0.2s;}.role-switch:hover{background:rgba(255,255,255,0.15);}
+    .role-indicator{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}.role-admin{background:rgba(224,82,82,0.2);color:#e05252;}.role-viewer{background:rgba(119,157,54,0.2);color:#8bb544;}
+    .tmpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0;}.tmpl-card{background:#f8fafb;border:2px solid #e2e8f0;border-radius:10px;padding:20px;cursor:pointer;text-align:center;transition:all 0.2s;}.tmpl-card:hover{border-color:#779d36;background:rgba(119,157,54,0.04);}.tmpl-card.selected{border-color:#779d36;background:rgba(119,157,54,0.08);}
+    .tmpl-icon{font-size:28px;margin-bottom:8px;}.tmpl-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:#375673;}.tmpl-desc{font-size:11px;color:#8a9baa;margin-top:4px;}
+    .dd-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#f0f4f8;border:1px solid #e2e8f0;color:#4a5568;margin:2px;}.dd-tag-x{cursor:pointer;color:#8a9baa;font-size:14px;line-height:1;}.dd-tag-x:hover{color:var(--red);}
   </style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const{useState,useEffect,useCallback,useMemo}=React;
+const{useState,useEffect,useCallback,useMemo,useRef}=React;
 const CONFIG={clientId:"613928f8-0497-47ea-bb0f-c1725a1f156a",tenantId:"ec357a32-5b85-438d-a765-ae33c8eb13b7",siteId:"8103997e-0688-4832-a5b4-bf18de7f96f5",siteUrl:"https://distributedei.sharepoint.com",lists:{rfi:"38fd99d2-dad5-41d8-a898-4f5e425ad340"}};
 const msalInstance=new msal.PublicClientApplication({auth:{clientId:CONFIG.clientId,authority:"https://login.microsoftonline.com/"+CONFIG.tenantId,redirectUri:window.location.origin},cache:{cacheLocation:"sessionStorage"}});
 const SCOPES=["Sites.Selected","Files.Read.All","User.Read"];
@@ -187,23 +214,170 @@ function Overview({user,items,loading}){
   </div>);
 }
 
-function Engineering({items,loading,error,onReload,onAdd,onEdit}){
+
+/* ─── Notification System ─── */
+function generateNotifications(items){
+  var notifs=[];var now=new Date();
+  items.forEach(function(i){
+    if(["Closed","Approved"].includes(i.Status))return;
+    var due=i.DueDate?new Date(i.DueDate):null;
+    if(due){var days=Math.floor((now-due)/86400000);
+      if(days>14)notifs.push({id:"od-"+i.id,type:"critical",icon:"🔴",title:i.Title||i.Number,msg:"Overdue by "+days+"d — "+i.Project,time:days+"d overdue",item:i});
+      else if(days>0)notifs.push({id:"od-"+i.id,type:"warning",icon:"🟡",title:i.Title||i.Number,msg:"Overdue by "+days+"d",time:days+"d",item:i});
+      else if(days>=-3)notifs.push({id:"due-"+i.id,type:"info",icon:"🔵",title:i.Title||i.Number,msg:"Due in "+Math.abs(days)+"d — "+i.Project,time:"Due soon",item:i});
+    }
+  });
+  return notifs.sort(function(a,b){return a.type==="critical"?-1:b.type==="critical"?1:0;});
+}
+
+function NotifPanel({notifications,onClose,onNavigate}){
+  return(<div className="notif-panel">
+    <div className="notif-header"><div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:18,fontWeight:700,color:"#375673"}}>Notifications ({notifications.length})</div><button className="btn btn-ghost btn-sm" onClick={onClose}>✕</button></div>
+    {notifications.length===0&&<div style={{padding:40,textAlign:"center",color:"#8a9baa"}}><div style={{fontSize:32,marginBottom:8}}>✅</div>All clear</div>}
+    {notifications.map(function(n){return <div key={n.id} className={"notif-item "+(n.type==="critical"?"unread":"")} onClick={function(){onNavigate(n.item);}}>
+      <div style={{display:"flex",gap:12,alignItems:"flex-start"}}>
+        <div style={{width:32,height:32,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,background:n.type==="critical"?"rgba(224,82,82,0.1)":n.type==="warning"?"rgba(232,169,48,0.1)":"rgba(55,86,115,0.08)"}}>{n.icon}</div>
+        <div style={{flex:1}}><div style={{fontWeight:600,fontSize:13,color:"#375673"}}>{n.title}</div><div style={{fontSize:12,color:"#8a9baa",marginTop:2}}>{n.msg}</div></div>
+        <div style={{fontSize:10,color:"#c4d0dc",whiteSpace:"nowrap"}}>{n.time}</div>
+      </div></div>;})}
+  </div>);
+}
+
+/* ─── Bulk Edit Modal ─── */
+function BulkEditModal({count,onClose,onApply}){
+  const[action,setAction]=useState("status");const[val,setVal]=useState("");
+  return(<Modal title={"Bulk Edit — "+count+" items"} onClose={onClose}>
+    <div className="fg"><label className="fl">Action</label><select className="fs" value={action} onChange={function(e){setAction(e.target.value);setVal("");}}>
+      <option value="status">Change Status</option><option value="bic">Change Ball in Court</option><option value="assignee">Change Assigned To</option></select></div>
+    <div className="fg"><label className="fl">{action==="status"?"New Status":action==="bic"?"New Ball in Court":"New Assignee"}</label>
+      {action==="status"&&<select className="fs" value={val} onChange={function(e){setVal(e.target.value);}}><option value="">Select...</option>{STS.map(function(s){return <option key={s}>{s}</option>;})}</select>}
+      {action==="bic"&&<select className="fs" value={val} onChange={function(e){setVal(e.target.value);}}><option value="">Select...</option>{BICS.map(function(s){return <option key={s}>{s}</option>;})}</select>}
+      {action==="assignee"&&<input className="fi" value={val} onChange={function(e){setVal(e.target.value);}} placeholder="Name..."/>}
+    </div>
+    <div className="ma"><button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+      <button className="btn btn-gold" disabled={!val} onClick={function(){var field=action==="status"?"Status":action==="bic"?"BallInCourt":"AssignedTo";onApply(field,val);}}>⚡ Apply to {count} items</button></div>
+  </Modal>);
+}
+
+/* ─── Template Wizard ─── */
+var TEMPLATES=[
+  {id:"ground",icon:"☀️",name:"Ground Mount Solar",desc:"Standard EPC tracker",items:["IFC Drawing Review","Racking Submittal","Module Submittal","Inverter Submittal","Electrical Design Review","Building Permit","Electrical Permit","SWPPP Permit","Interconnection Application","Geotech Report","Wire Management Submittal","Transformer Submittal"]},
+  {id:"bess",icon:"🔋",name:"Battery Storage (BESS)",desc:"ESS commissioning & integration",items:["Battery System Submittal","BMS Integration Review","Fire Safety Plan","Commissioning Plan","Interconnection Study","Electrical Permit","Building Permit","HVAC Design Review","Controls Integration","Performance Test Plan"]},
+  {id:"rooftop",icon:"🏢",name:"Rooftop Solar",desc:"Structural + landlord coordination",items:["Structural Analysis","Roof Permit","Landlord Approval","Racking Submittal","Module Submittal","Inverter Submittal","Electrical Permit","Building Permit"]},
+  {id:"hybrid",icon:"⚡",name:"Hybrid Solar + Storage",desc:"Combined solar + BESS",items:["IFC Drawing Review","Racking Submittal","Module Submittal","Inverter Submittal","Battery System Submittal","BMS Integration Review","Fire Safety Plan","Commissioning Plan","Building Permit","Electrical Permit","SWPPP Permit","Interconnection Application","Geotech Report","Transformer Submittal","Performance Test Plan"]}
+];
+function TemplateModal({onClose,onSave}){
+  const[step,setStep]=useState(1);const[tmpl,setTmpl]=useState("");const[name,setName]=useState("");const[saving,setSaving]=useState(false);
+  var t=TEMPLATES.find(function(x){return x.id===tmpl;});
+  return(<Modal title="New Project from Template" onClose={onClose}>
+    {step===1&&<div>
+      <div style={{fontSize:13,color:"#8a9baa",marginBottom:16}}>Choose a project template to auto-populate standard RFIs and submittals.</div>
+      <div className="tmpl-grid">{TEMPLATES.map(function(t){return <div key={t.id} className={"tmpl-card "+(tmpl===t.id?"selected":"")} onClick={function(){setTmpl(t.id);}}>
+        <div className="tmpl-icon">{t.icon}</div><div className="tmpl-name">{t.name}</div><div className="tmpl-desc">{t.desc}</div><div style={{marginTop:8,fontSize:11,color:"#779d36",fontWeight:600}}>{t.items.length} items</div>
+      </div>;})}</div>
+      <div className="ma"><button className="btn btn-ghost" onClick={onClose}>Cancel</button><button className="btn btn-gold" disabled={!tmpl} onClick={function(){setStep(2);}}>Next →</button></div>
+    </div>}
+    {step===2&&t&&<div>
+      <div className="fg"><label className="fl">Project Name *</label><input className="fi" value={name} onChange={function(e){setName(e.target.value);}} placeholder="e.g. Moreau A"/></div>
+      <div style={{fontSize:13,color:"#8a9baa",marginBottom:12}}>Creates {t.items.length} items for <strong>{name||"..."}</strong>:</div>
+      <div style={{maxHeight:200,overflowY:"auto",background:"#f8fafb",border:"1px solid #e2e8f0",borderRadius:8,padding:12}}>
+        {t.items.map(function(item,i){return <div key={i} style={{padding:"4px 0",fontSize:12,color:"#4a5568",borderBottom:"1px solid #f0f4f8"}}><span style={{color:"#779d36",marginRight:6}}>✓</span>{item}</div>;})}
+      </div>
+      <div className="ma"><button className="btn btn-ghost" onClick={function(){setStep(1);}}>← Back</button>
+        <button className="btn btn-gold" disabled={saving||!name} onClick={async function(){setSaving(true);try{for(var item of t.items){await onSave({Title:item,Project:name,ItemType:item.toLowerCase().includes("permit")?"Submittal":"RFI",Status:"Draft",BallInCourt:"Engineering"});}onClose();}catch(e){alert(e.message);setSaving(false);}}}>
+          {saving?"Creating...":"⚡ Create "+t.items.length+" items"}</button></div>
+    </div>}
+  </Modal>);
+}
+
+/* ─── Common Dropdowns Manager ─── */
+var DEFAULT_DDS={contractors:["Primoris","Signal Energy","J&J Solar","TRC","Solv"],ballInCourt:BICS,projectTypes:["Ground Mount","Rooftop","Carport","BESS","Hybrid"],states:["NY","MA","PA","RI","CT","NJ","FL"]};
+function useDropdowns(){
+  const[dds,setDDs]=useState(function(){try{var s=localStorage.getItem("dei_dds");return s?JSON.parse(s):DEFAULT_DDS;}catch(e){return DEFAULT_DDS;}});
+  var save=function(n){setDDs(n);localStorage.setItem("dei_dds",JSON.stringify(n));};
+  return{dropdowns:dds,addOption:function(cat,val){var n=Object.assign({},dds);n[cat]=[...(n[cat]||[]),val];save(n);},removeOption:function(cat,val){var n=Object.assign({},dds);n[cat]=(n[cat]||[]).filter(function(v){return v!==val;});save(n);},addCategory:function(cat){var n=Object.assign({},dds);if(!n[cat])n[cat]=[];save(n);}};
+}
+function DropdownManager({dropdowns,addOption,removeOption,addCategory}){
+  const[selCat,setSelCat]=useState(Object.keys(dropdowns)[0]||"");const[newVal,setNewVal]=useState("");const[newCat,setNewCat]=useState("");
+  var cats=Object.keys(dropdowns);var catLbl=function(c){return c.replace(/([A-Z])/g," $1").replace(/^./,function(s){return s.toUpperCase();});};
+  return(<div>
+    <div className="section-head"><div className="section-title">Common <span>Dropdowns</span></div><div className="section-sub">Shared dropdown options used across all projects — define once, use everywhere</div></div>
+    <div style={{display:"grid",gridTemplateColumns:"240px 1fr",gap:24}}>
+      <div style={{background:"#fff",border:"1px solid #e2e8f0",borderRadius:10,overflow:"hidden"}}>
+        <div style={{padding:"12px 16px",borderBottom:"1px solid #e2e8f0",fontFamily:"'Barlow Condensed',sans-serif",fontSize:14,fontWeight:700,color:"#375673"}}>Categories</div>
+        {cats.map(function(c){return <div key={c} style={{padding:"10px 16px",cursor:"pointer",fontSize:13,fontWeight:selCat===c?600:400,color:selCat===c?"#779d36":"#4a5568",background:selCat===c?"rgba(119,157,54,0.06)":"transparent",borderLeft:selCat===c?"3px solid #779d36":"3px solid transparent"}} onClick={function(){setSelCat(c);}}>{catLbl(c)} ({(dropdowns[c]||[]).length})</div>;})}
+        <div style={{padding:"10px 16px",borderTop:"1px solid #e2e8f0"}}><div style={{display:"flex",gap:6}}><input className="fi" style={{fontSize:12,padding:6}} value={newCat} onChange={function(e){setNewCat(e.target.value);}} placeholder="New category..."/><button className="btn btn-gold btn-sm" disabled={!newCat} onClick={function(){addCategory(newCat.trim());setSelCat(newCat.trim());setNewCat("");}}>+</button></div></div>
+      </div>
+      <div>{selCat&&<div className="tw"><div className="th"><div className="tt">{catLbl(selCat)} — {(dropdowns[selCat]||[]).length} options</div></div>
+        <div style={{padding:20}}>
+          <div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:16}}>{(dropdowns[selCat]||[]).map(function(v){return <span key={v} className="dd-tag">{v}<span className="dd-tag-x" onClick={function(){if(confirm("Remove '"+v+"'?"))removeOption(selCat,v);}}>×</span></span>;})}{(dropdowns[selCat]||[]).length===0&&<div style={{color:"#c4d0dc",fontSize:13}}>No options yet</div>}</div>
+          <div style={{display:"flex",gap:8}}><input className="fi" value={newVal} onChange={function(e){setNewVal(e.target.value);}} placeholder={"Add "+catLbl(selCat).toLowerCase()+"..."} onKeyDown={function(e){if(e.key==="Enter"&&newVal.trim()){addOption(selCat,newVal.trim());setNewVal("");}}}/><button className="btn btn-gold" disabled={!newVal.trim()} onClick={function(){addOption(selCat,newVal.trim());setNewVal("");}}>+ Add</button></div>
+        </div></div>}</div>
+    </div>
+  </div>);
+}
+
+/* ─── Requirements Tracker ─── */
+var REQS=[{n:1,name:"Notifications",rank:"Required after 100M",status:"partial",note:"In-app panel built. Email/Teams push via Power Automate planned."},{n:2,name:"Common Dropdowns",rank:"Must Have",status:"built",note:"Dropdown manager in sidebar. Persisted locally, SharePoint migration planned."},{n:3,name:"Email Templates",rank:"Nice to Have",status:"planned",note:"Power Automate integration planned."},{n:4,name:"Dashboards",rank:"Must Have",status:"built",note:"KPI cards on Overview, Engineering, Executive Roll-up."},{n:5,name:"Assignable Access",rank:"Nice to Have",status:"partial",note:"Admin/Viewer toggle built. Per-project via Azure AD groups planned."},{n:6,name:"Microsoft Integration",rank:"Must Have",status:"built",note:"Full MSAL + Graph API. Evidence links in items."},{n:7,name:"Configurable Views",rank:"Nice to Have",status:"built",note:"Table, Kanban, Summary views."},{n:8,name:"Column Count (30+)",rank:"Must Have",status:"built",note:"SharePoint supports 500+ columns."},{n:9,name:"Conditional Formatting",rank:"Must Have",status:"built",note:"Overdue highlighting, status badges, aging indicators."},{n:10,name:"Data Field Types",rank:"Must Have",status:"built",note:"Numbers, dates, dropdowns, links, emails."},{n:11,name:"Math Capabilities",rank:"Must Have",status:"built",note:"Summary rows, avg aging, completion %."},{n:12,name:"Templates",rank:"Must Have",status:"built",note:"4 project templates with bulk item creation."},{n:13,name:"Role Based Access",rank:"Nice to Have",status:"partial",note:"Admin/Viewer toggle. Azure AD groups planned."},{n:14,name:"Notification Audience",rank:"Nice to Have",status:"planned",note:"External email via Power Automate planned."},{n:15,name:"Highlight & Summary",rank:"Must Have",status:"built",note:"Per-project aggregation + summary footer."},{n:16,name:"Filtering",rank:"Must Have",status:"built",note:"Project tabs, person chips, status, type, search."},{n:17,name:"Sorting",rank:"Must Have",status:"built",note:"Overdue-first, date sorting."},{n:18,name:"Dropdown Warnings",rank:"Nice to Have",status:"planned",note:"Affected item count on dropdown changes."},{n:19,name:"Template Projects",rank:"Must Have",status:"built",note:"Wizard with 4 project types."},{n:20,name:"Bulk Edit",rank:"Required after 100M",status:"built",note:"Multi-select + batch status/BIC/assignee."},{n:21,name:"Vendor Facing Docs",rank:"Must Have",status:"partial",note:"Viewer role = read-only. Dedicated portal planned."},{n:22,name:"Client Facing Docs",rank:"Must Have",status:"partial",note:"Viewer role = read-only. Client portal planned."}];
+function ReqTracker(){
+  const[fRank,setFRank]=useState("all");const[fStat,setFStat]=useState("all");
+  var fi=REQS.filter(function(r){return(fRank==="all"||r.rank===fRank)&&(fStat==="all"||r.status===fStat);});
+  var built=REQS.filter(function(r){return r.status==="built";}).length;var partial=REQS.filter(function(r){return r.status==="partial";}).length;var planned=REQS.filter(function(r){return r.status==="planned";}).length;
+  return(<div>
+    <div className="section-head"><div className="section-title">Requirements <span>Tracker</span></div><div className="section-sub">22 requirements from PM Software Business Case</div></div>
+    <div className="kpi-grid" style={{marginBottom:20}}>
+      <div className={"kpi-card good "+(fStat==="built"?"ac":"")} onClick={function(){setFStat(fStat==="built"?"all":"built");}}><div className="kpi-label">Built</div><div className="kpi-value" style={{color:"var(--green)"}}>{built}</div><div className="kpi-sub green">Complete</div></div>
+      <div className={"kpi-card "+(fStat==="partial"?"ac":"")} onClick={function(){setFStat(fStat==="partial"?"all":"partial");}}><div className="kpi-label">Partial</div><div className="kpi-value" style={{color:"var(--amber)"}}>{partial}</div><div className="kpi-sub">In progress</div></div>
+      <div className={"kpi-card "+(fStat==="planned"?"ac":"")} onClick={function(){setFStat(fStat==="planned"?"all":"planned");}}><div className="kpi-label">Planned</div><div className="kpi-value" style={{color:"#c4d0dc"}}>{planned}</div><div className="kpi-sub">Backlog</div></div>
+      <div className="kpi-card"><div className="kpi-label">Coverage</div><div className="kpi-value">{Math.round((built+partial*0.5)/22*100)}%</div><div className="kpi-sub green">Weighted</div></div>
+    </div>
+    <div style={{marginBottom:20,background:"#fff",border:"1px solid #e2e8f0",borderRadius:10,padding:16}}><div style={{display:"flex",height:8,borderRadius:4,overflow:"hidden",background:"#e2e8f0"}}><div style={{width:(built/22*100)+"%",background:"var(--green)"}}/><div style={{width:(partial/22*100)+"%",background:"var(--amber)"}}/></div><div style={{display:"flex",gap:16,marginTop:8,fontSize:11,color:"#8a9baa"}}><span style={{color:"var(--green)"}}>● Built ({built})</span><span style={{color:"var(--amber)"}}>● Partial ({partial})</span><span style={{color:"#c4d0dc"}}>● Planned ({planned})</span></div></div>
+    <div className="pbar" style={{marginBottom:20}}><span style={{fontSize:10,color:"#8a9baa",textTransform:"uppercase",letterSpacing:1,fontWeight:700,marginRight:4}}>Priority:</span>
+      <div className={"pchip "+(fRank==="all"?"active":"")} onClick={function(){setFRank("all");}}>All</div>
+      <div className={"pchip "+(fRank==="Must Have"?"active":"")} onClick={function(){setFRank(fRank==="Must Have"?"all":"Must Have");}}>Must Have</div>
+      <div className={"pchip "+(fRank==="Nice to Have"?"active":"")} onClick={function(){setFRank(fRank==="Nice to Have"?"all":"Nice to Have");}}>Nice to Have</div>
+      <div className={"pchip "+(fRank==="Required after 100M"?"active":"")} onClick={function(){setFRank(fRank==="Required after 100M"?"all":"Required after 100M");}}>After $100M</div>
+    </div>
+    {fi.map(function(r){return <div key={r.n} className="req-card"><div className="req-num">{r.n}</div><div className={"req-status-dot "+(r.status==="built"?"req-built":r.status==="partial"?"req-partial":"req-planned")}/><div style={{flex:1}}><div style={{display:"flex",justifyContent:"space-between",gap:12}}><div style={{fontWeight:700,fontSize:14,color:"#375673"}}>{r.name}</div><span style={{padding:"2px 8px",borderRadius:4,fontSize:10,fontWeight:700,textTransform:"uppercase",fontFamily:"'Barlow Condensed',sans-serif",background:r.rank==="Must Have"?"rgba(224,82,82,0.1)":r.rank==="Nice to Have"?"rgba(55,86,115,0.08)":"rgba(232,169,48,0.1)",color:r.rank==="Must Have"?"var(--red)":r.rank==="Nice to Have"?"#8a9baa":"var(--amber)"}}>{r.rank}</span></div><div style={{fontSize:12,color:r.status==="built"?"var(--green)":r.status==="partial"?"var(--amber)":"#c4d0dc",marginTop:4,fontWeight:500}}>{r.status==="built"?"✅":"🔧"} {r.note}</div></div></div>;})}
+  </div>);
+}
+
+
+function Engineering({items,loading,error,onReload,onAdd,onEdit,role}){
   const[projF,setProjF]=useState("all");const[personF,setPersonF]=useState("all");const[typeF,setTypeF]=useState("all");const[statF,setStatF]=useState("all");
   const[modal,setModal]=useState(null);const[sel,setSel]=useState(null);const[expanded,setExpanded]=useState(null);const[success,setSuccess]=useState(null);
+  const[selected,setSelected]=useState(new Set());const[viewMode,setViewMode]=useState("table");var isAdmin=role==="admin";
   var projects=useMemo(function(){return[...new Set(items.map(function(i){return i.Project;}).filter(Boolean))].sort();},[items]);
   var people=useMemo(function(){var m={};items.forEach(function(i){var p=i.AssignedTo||"Unassigned";m[p]=(m[p]||0)+1;});return Object.entries(m).sort(function(a,b){return b[1]-a[1];});},[items]);
   var flash=function(msg){setSuccess(msg);setTimeout(function(){setSuccess(null);},3000);};
   var overdue=items.filter(isOverdue);
+  var notifications=generateNotifications(items);
   var projOD={};overdue.forEach(function(i){var p=i.Project||"?";projOD[p]=(projOD[p]||0)+1;});
   var filtered=useMemo(function(){return items.filter(function(i){return(projF==="all"||i.Project===projF)&&(personF==="all"||((i.AssignedTo||"Unassigned")===personF))&&(typeF==="all"||i.ItemType===typeF)&&(statF==="all"||(statF==="overdue"?isOverdue(i):i.Status===statF));}).sort(function(a,b){var ao=isOverdue(a)?0:1,bo=isOverdue(b)?0:1;if(ao!==bo)return ao-bo;if(!a.DueDate)return 1;if(!b.DueDate)return-1;return new Date(a.DueDate)-new Date(b.DueDate);});},[items,projF,personF,typeF,statF]);
+
+  var summaryOpen=filtered.filter(function(i){return !["Closed","Approved"].includes(i.Status);}).length;
+  var summaryOD=filtered.filter(isOverdue).length;
+  var summaryDue=filtered.filter(function(i){return agingDays(i.DueDate)!==null&&!["Closed","Approved"].includes(i.Status);});
+  var summaryAvg=summaryDue.length?Math.round(summaryDue.reduce(function(s,i){return s+agingDays(i.DueDate);},0)/summaryDue.length):0;
+  var toggleSel=function(id){setSelected(function(prev){var n=new Set(prev);if(n.has(id))n.delete(id);else n.add(id);return n;});};
+  var toggleAll=function(){if(selected.size===filtered.length)setSelected(new Set());else setSelected(new Set(filtered.map(function(i){return i.id;})));};
+  var handleBulk=async function(field,val){var ids=[...selected];for(var id of ids){try{await onEdit(id,{[field]:val});}catch(e){}}setSelected(new Set());flash("Updated "+ids.length+" items ✓");};
+  var kanbanCols=useMemo(function(){var cols={};STS.forEach(function(s){cols[s]=[];});filtered.forEach(function(i){var st=i.Status||"Draft";if(!cols[st])cols[st]=[];cols[st].push(i);});return cols;},[filtered]);
+  var colColors={Draft:"#c4d0dc",Submitted:"#375673","In Review":"#8b5cf6","Returned - Revise":"#e8a930",Approved:"#2ecc8a",Rejected:"#e05252",Closed:"#8a9baa"};
 
   return(<div>
     <div className="section-head" style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
       <div><div className="section-title">Engineering <span>Log</span></div><div className="section-sub">RFIs & Submittals — {items.length} items across {projects.length} projects</div></div>
-      <div style={{display:"flex",gap:8}}><button className="btn btn-ghost btn-sm" onClick={onReload}>↺ Refresh</button><button className="btn btn-gold btn-sm" onClick={function(){setModal("add");}}>+ Add Item</button></div>
+      <div style={{display:"flex",gap:8,alignItems:"center"}}>
+        <div className="view-toggle"><button className={"view-toggle-btn "+(viewMode==="table"?"active":"")} onClick={function(){setViewMode("table");}}>Table</button><button className={"view-toggle-btn "+(viewMode==="kanban"?"active":"")} onClick={function(){setViewMode("kanban");}}>Kanban</button><button className={"view-toggle-btn "+(viewMode==="summary"?"active":"")} onClick={function(){setViewMode("summary");}}>Summary</button></div>
+        <button className="btn btn-ghost btn-sm" onClick={onReload}>↺ Refresh</button>
+        {isAdmin&&<button className="btn btn-primary btn-sm" style={{background:"linear-gradient(135deg,#375673,#2d4a63)",borderColor:"#375673"}} onClick={function(){setModal("template");}}>📋 Template</button>}
+        {isAdmin&&<button className="btn btn-gold btn-sm" onClick={function(){setModal("add");}}>+ Add Item</button>}
+      </div>
     </div>
     {error&&<div className="be">⚠ {error}</div>}
     {success&&<div className="bs">✅ {success}</div>}
+    {selected.size>0&&isAdmin&&<div className="bulk-bar"><div className="bulk-bar-count">✓ {selected.size} selected</div><div style={{display:"flex",gap:8}}><button className="btn btn-ghost btn-sm" style={{color:"#fff",borderColor:"rgba(255,255,255,0.3)"}} onClick={function(){setSelected(new Set());}}>Deselect</button><button className="btn btn-gold btn-sm" onClick={function(){setModal("bulk");}}>⚡ Bulk Edit</button></div></div>}
     <div className="kpi-grid">
       <div className={"kpi-card "+(statF==="all"&&projF==="all"?"ac":"")} onClick={function(){setStatF("all");setProjF("all");setPersonF("all");}}><div className="kpi-label">Total</div><div className="kpi-value">{items.length}</div><div className="kpi-sub">All items</div></div>
       <div className={"kpi-card "+(overdue.length>0?"alert ":"")+(statF==="overdue"?"ac":"")} onClick={function(){setStatF(statF==="overdue"?"all":"overdue");}}><div className="kpi-label">Overdue</div><div className="kpi-value">{overdue.length}</div><div className={"kpi-sub "+(overdue.length>0?"red":"green")}>{overdue.length>0?"Click to filter":"On track"}</div></div>
@@ -222,7 +396,7 @@ function Engineering({items,loading,error,onReload,onAdd,onEdit}){
       {people.slice(0,15).map(function(e){var name=e[0],cnt=e[1];var od=overdue.filter(function(i){return(i.AssignedTo||"Unassigned")===name;}).length;return <div key={name} className={"pchip "+(personF===name?"active":"")+(od>0?" hod":"")} onClick={function(){setPersonF(personF===name?"all":name);}}>{name.split(" ")[0]} <span style={{color:"#8a9baa",marginLeft:3,fontSize:10}}>({cnt}){od>0?" ⚠"+od:""}</span></div>;})}
     </div>}
 
-    <div className="tw">
+    {viewMode==="table"&&<div className="tw">
       <div className="th">
         <div className="tt">{projF!=="all"?projF:"All Projects"} — {filtered.length} items{statF==="overdue"&&<span style={{color:"var(--red)",marginLeft:8}}>⚠ Overdue only</span>}</div>
         <select className="fsel" value={statF} onChange={function(e){setStatF(e.target.value);}}><option value="all">All Statuses</option><option value="overdue">⚠ Overdue</option>{STS.map(function(s){return <option key={s}>{s}</option>;})}</select>
@@ -265,9 +439,15 @@ function Engineering({items,loading,error,onReload,onAdd,onEdit}){
           </div>
         </td></tr>}
       </React.Fragment>;})}</tbody></table></div>}
-    </div>
+    </div>}
+    {/* Kanban View */}
+    {viewMode==="kanban"&&<div className="kanban">{STS.map(function(st){var col=kanbanCols[st]||[];if(col.length===0&&!["Draft","Submitted","In Review","Approved"].includes(st))return null;return <div key={st} className="kanban-col"><div className="kanban-col-title" style={{borderColor:colColors[st]||"#c4d0dc"}}>{st}<span style={{fontSize:11,fontWeight:400,color:"#8a9baa"}}>{col.length}</span></div>{col.map(function(item){return <div key={item.id} className="kanban-card" onClick={function(){setSel(item);if(isAdmin)setModal("edit");}}><div className="kanban-card-title">{item.Title||item.Number||"—"}</div><div className="kanban-card-sub">{item.Project||"—"} · <BIC val={item.BallInCourt}/></div>{isOverdue(item)&&<div style={{fontSize:10,color:"var(--red)",fontWeight:600,marginTop:4}}>⚠ {agingDays(item.DueDate)}d overdue</div>}</div>;})}{col.length===0&&<div style={{textAlign:"center",padding:20,color:"#c4d0dc",fontSize:12}}>Empty</div>}</div>;})}</div>}
+    {/* Summary View */}
+    {viewMode==="summary"&&<div className="tw"><div className="th"><div className="tt">Summary by Project</div></div><table><thead><tr><th>Project</th><th>Total</th><th>Open</th><th>Overdue</th><th>Approved</th><th>Closed</th><th>Completion</th><th>Avg Aging</th></tr></thead><tbody>{projects.map(function(p){var pi=filtered.filter(function(i){return i.Project===p;});if(pi.length===0)return null;var po=pi.filter(isOverdue);var pa=pi.filter(function(i){return i.Status==="Approved";});var pc=pi.filter(function(i){return i.Status==="Closed";});var pOp=pi.filter(function(i){return !["Closed","Approved"].includes(i.Status);});var pAg=pOp.filter(function(i){return agingDays(i.DueDate)!==null;});var pAv=pAg.length?Math.round(pAg.reduce(function(s,i){return s+agingDays(i.DueDate);},0)/pAg.length):0;var pct=pi.length?Math.round((pa.length+pc.length)/pi.length*100):0;return <tr key={p}><td style={{fontWeight:700,color:"#375673"}}>{p}</td><td>{pi.length}</td><td>{pOp.length}</td><td style={{color:po.length?"var(--red)":"var(--green)",fontWeight:po.length?700:400}}>{po.length}</td><td>{pa.length}</td><td>{pc.length}</td><td><div style={{display:"flex",alignItems:"center",gap:8}}><div style={{flex:1,height:6,background:"#e2e8f0",borderRadius:3,overflow:"hidden"}}><div style={{height:"100%",width:pct+"%",background:pct===100?"var(--green)":"#779d36",borderRadius:3}}/></div><span style={{fontSize:11,fontWeight:600}}>{pct}%</span></div></td><td style={{color:pAv>7?"var(--red)":"#375673"}}>{pAv}d</td></tr>;})}<tr className="summary-row"><td>TOTALS</td><td>{filtered.length}</td><td>{summaryOpen}</td><td>{summaryOD}</td><td>{filtered.filter(function(i){return i.Status==="Approved";}).length}</td><td>{filtered.filter(function(i){return i.Status==="Closed";}).length}</td><td></td><td>{summaryAvg}d</td></tr></tbody></table></div>}
     {modal==="add"&&<AddModal projects={projects} onClose={function(){setModal(null);}} onSave={async function(f){await onAdd(f);flash("Added ✓");}}/>}
     {modal==="edit"&&sel&&<EditModal item={sel} projects={projects} onClose={function(){setModal(null);}} onSave={async function(id,f){await onEdit(id,f);flash("Updated ✓");}}/>}
+    {modal==="bulk"&&<BulkEditModal count={selected.size} onClose={function(){setModal(null);}} onApply={async function(f,v){await handleBulk(f,v);setModal(null);}}/>}
+    {modal==="template"&&<TemplateModal onClose={function(){setModal(null);}} onSave={async function(f){await onAdd(f);flash("Template items created ✓");}}/>}
   </div>);
 }
 
@@ -451,9 +631,10 @@ function Login({onLogin}){
 }
 
 function App(){
-  const[user,setUser]=useState(null);const[view,setView]=useState("overview");const[ready,setReady]=useState(false);
+  const[user,setUser]=useState(null);const[view,setView]=useState("overview");const[ready,setReady]=useState(false);const[role,setRole]=useState("admin");const[showNotifs,setShowNotifs]=useState(false);
   const[items,setItems]=useState([]);const[loading,setLoading]=useState(true);const[error,setError]=useState(null);
   useEffect(function(){msalInstance.initialize().then(function(){var a=msalInstance.getAllAccounts();if(a.length)setUser(a[0]);setReady(true);});},[]);
+  var dd=useDropdowns();
   var load=useCallback(async function(){setLoading(true);setError(null);try{setItems(await getItems(CONFIG.lists.rfi));}catch(e){setError(e.message);}finally{setLoading(false);}},[]);
   useEffect(function(){if(user)load();},[user,load]);
   var handleAdd=async function(f){await addItem(CONFIG.lists.rfi,f);load();};
@@ -461,22 +642,27 @@ function App(){
   if(!ready)return <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh"}}><div className="spinner"/></div>;
   if(!user)return <Login onLogin={setUser}/>;
   var overdue=items.filter(isOverdue);
-  var nav=[{section:"PROJECT"},{id:"overview",icon:"🏠",label:"Overview"},{id:"executive",icon:"📊",label:"Executive Roll-up"},{section:"LOGS"},{id:"engineering",icon:"⚙",label:"Engineering Log",badge:overdue.length},{id:"owner",icon:"👤",label:"Owner Log"},{id:"permits",icon:"🏛",label:"Permits"},{id:"closeout",icon:"📋",label:"Closeout"}];
-  var titles={overview:"Overview",executive:"Executive Roll-up",engineering:"Engineering Log",owner:"Owner Log",permits:"Permit Matrix",closeout:"Closeout"};
+  var notifications=generateNotifications(items);
+  var nav=[{section:"PROJECT"},{id:"overview",icon:"🏠",label:"Overview"},{id:"executive",icon:"📊",label:"Executive Roll-up"},{section:"LOGS"},{id:"engineering",icon:"⚙",label:"Engineering Log",badge:overdue.length},{id:"owner",icon:"👤",label:"Owner Log"},{id:"permits",icon:"🏛",label:"Permits"},{id:"closeout",icon:"📋",label:"Closeout"},{section:"ADMIN"},{id:"dropdowns",icon:"📑",label:"Common Dropdowns"},{id:"requirements",icon:"✅",label:"Requirements"}];
+  var titles={overview:"Overview",executive:"Executive Roll-up",engineering:"Engineering Log",owner:"Owner Log",permits:"Permit Matrix",closeout:"Closeout",dropdowns:"Common Dropdowns",requirements:"Requirements Tracker"};
   return(<div className="app">
     <div className="sidebar"><div className="sidebar-logo"><img src="logo.png" alt="DEI" style={{width:"100%",maxWidth:200}}/><div className="logo-tagline">Project Truth — PMO</div><div className="logo-divider"/></div>
       <div className="nav">{nav.map(function(item,i){if(item.section)return <div key={i} className="nav-section">{item.section}</div>;return <div key={item.id} className={"nav-item "+(view===item.id?"active":"")} onClick={function(){setView(item.id);}}><span className="nav-icon">{item.icon}</span><span>{item.label}</span>{item.badge>0&&<span className="nav-badge">{item.badge}</span>}</div>;})}</div>
+      <div className="role-switch" onClick={function(){setRole(role==="admin"?"viewer":"admin");}}><span className={"role-indicator "+(role==="admin"?"role-admin":"role-viewer")}>{role}</span><span>Click to toggle</span></div>
       <div className="sidebar-user"><div className="user-name">{user.name||"User"}</div><div className="user-org">{user.username}</div><button className="signout-btn" onClick={function(){msalInstance.logoutPopup();setUser(null);}}>Sign out</button></div>
     </div>
     <div className="main">
-      <div className="topbar"><div className="topbar-title">{titles[view]}</div><div className="live-dot">SharePoint Connected</div></div>
+      <div className="topbar"><div className="topbar-title">{titles[view]}</div><div style={{display:"flex",alignItems:"center",gap:16}}><div style={{position:"relative",cursor:"pointer"}} onClick={function(){setShowNotifs(!showNotifs);}}><span style={{fontSize:18}}>🔔</span>{notifications.length>0&&<span className="notif-dot"/>}</div><div className="live-dot">SharePoint Connected</div></div></div>
       <div className="content">
         {view==="overview"&&<Overview user={user} items={items} loading={loading}/>}
         {view==="executive"&&<ExecRollup/>}
-        {view==="engineering"&&<Engineering items={items} loading={loading} error={error} onReload={load} onAdd={handleAdd} onEdit={handleEdit}/>}
+        {view==="engineering"&&<Engineering items={items} loading={loading} error={error} onReload={load} onAdd={handleAdd} onEdit={handleEdit} role={role}/>}
         {view==="owner"&&<ComingSoon title="Owner Log" listName="DEI-BOM-Procurement"/>}
         {view==="permits"&&<ComingSoon title="Permit Matrix" listName="DEI-Permit-Matrix"/>}
         {view==="closeout"&&<ComingSoon title="Closeout Tracker" listName="DEI-Closeout-Items"/>}
+        {view==="dropdowns"&&<DropdownManager dropdowns={dd.dropdowns} addOption={dd.addOption} removeOption={dd.removeOption} addCategory={dd.addCategory}/>}
+        {view==="requirements"&&<ReqTracker/>}
+        {showNotifs&&<NotifPanel notifications={notifications} onClose={function(){setShowNotifs(false);}} onNavigate={function(item){setShowNotifs(false);setView("engineering");}}/>}
       </div>
     </div>
   </div>);
