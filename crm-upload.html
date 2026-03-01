@@ -632,11 +632,18 @@ const msalConfig = {
   cache: { cacheLocation: "sessionStorage" }
 };
 
-const msalApp = new msal.PublicClientApplication(msalConfig);
+let msalApp = null;
 let accessToken = null;
+
+async function initMsal() {
+  msalApp = new msal.PublicClientApplication(msalConfig);
+  await msalApp.initialize();
+  return msalApp;
+}
 
 async function signIn() {
   try {
+    if (!msalApp) await initMsal();
     const resp = await msalApp.loginPopup({ scopes: ["Sites.ReadWrite.All"] });
     msalApp.setActiveAccount(resp.account);
     await getToken();
@@ -1063,19 +1070,21 @@ async function deleteList() {
 }
 
 // Init
-document.addEventListener('DOMContentLoaded', () => {
-  const accounts = msalApp.getAllAccounts();
-  if (accounts.length > 0) {
-    msalApp.setActiveAccount(accounts[0]);
-    getToken().then(() => {
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    await initMsal();
+    const accounts = msalApp.getAllAccounts();
+    if (accounts.length > 0) {
+      msalApp.setActiveAccount(accounts[0]);
+      await getToken();
       document.getElementById("loginScreen").style.display = "none";
       document.getElementById("mainScreen").style.display = "block";
       document.getElementById("userBadge").style.display = "block";
       document.getElementById("userBadge").textContent = accounts[0].username;
       document.getElementById("signOutBtn").style.display = "block";
       showSchema('companies');
-    }).catch(() => {});
-  }
+    }
+  } catch(e) { /* first visit, show login */ }
 });
 </script>
 </body>
