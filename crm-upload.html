@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DEG Presales CRM → SharePoint Migration</title>
+<script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+  :root {
+    --navy: #375673;
+    --green: #779d36;
+    --green-dim: #5a7a28;
+    --bg: #0c1117;
+    --surface: #161b22;
+    --surface2: #1c2129;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --red: #f85149;
+    --amber: #d29922;
+    --blue: #58a6ff;
+    --purple: #bc8cff;
+    --cyan: #39d2c0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .app-header {
+    background: linear-gradient(135deg, var(--navy) 0%, #1a2d42 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .app-header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .app-header h1 span {
+    color: var(--green);
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .user-badge {
+    font-size: 13px;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.08);
+    padding: 6px 12px;
+    border-radius: 6px;
+  }
+
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background: var(--green);
+    color: #fff;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: var(--green-dim);
+  }
+
+  .btn-danger {
+    background: rgba(248, 81, 73, 0.15);
+    color: var(--red);
+    border: 1px solid rgba(248, 81, 73, 0.3);
+  }
+
+  .btn-danger:hover:not(:disabled) {
+    background: rgba(248, 81, 73, 0.25);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+
+  .btn-outline:hover:not(:disabled) {
+    color: var(--text);
+    border-color: var(--text-dim);
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px;
+  }
+
+  .login-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    gap: 24px;
+  }
+
+  .login-screen h2 {
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  .login-screen p {
+    color: var(--text-dim);
+    font-size: 15px;
+    max-width: 500px;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  .login-btn {
+    font-size: 15px;
+    padding: 12px 28px;
+    margin-top: 8px;
+  }
+
+  /* Steps */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .step-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .step-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--navy);
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .step-num.done {
+    background: var(--green);
+  }
+
+  .step-title {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .step-body {
+    padding: 20px;
+  }
+
+  .step-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  /* Config */
+  .config-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .config-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .config-field.full {
+    grid-column: 1 / -1;
+  }
+
+  .config-field label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .config-field input {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 8px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    outline: none;
+  }
+
+  .config-field input:focus {
+    border-color: var(--green);
+  }
+
+  /* Data preview */
+  .data-preview {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .data-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+  }
+
+  .data-card-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .data-card-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--green);
+  }
+
+  .data-card-sub {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* Log */
+  .log-container {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    padding: 14px;
+    margin-top: 12px;
+  }
+
+  .log-entry {
+    display: flex;
+    gap: 8px;
+  }
+
+  .log-time {
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+
+  .log-ok { color: var(--green); }
+  .log-err { color: var(--red); }
+  .log-warn { color: var(--amber); }
+  .log-info { color: var(--blue); }
+  .log-dim { color: var(--text-dim); }
+
+  /* Progress */
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--bg);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 12px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), var(--cyan));
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+
+  /* List results */
+  .list-result {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+
+  .list-result-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .list-result-icon.companies { background: rgba(88, 166, 255, 0.15); color: var(--blue); }
+  .list-result-icon.contacts { background: rgba(188, 140, 255, 0.15); color: var(--purple); }
+  .list-result-icon.jobs { background: rgba(57, 210, 192, 0.15); color: var(--cyan); }
+  .list-result-icon.deals { background: rgba(119, 157, 54, 0.15); color: var(--green); }
+
+  .list-result-info { flex: 1; }
+  .list-result-name { font-size: 14px; font-weight: 600; }
+  .list-result-id { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-dim); }
+  .list-result-count { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-dim); }
+
+  /* Delete section */
+  .delete-section {
+    border-top: 1px solid var(--border);
+    margin-top: 16px;
+    padding-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .delete-section input {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 8px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    flex: 1;
+    outline: none;
+  }
+
+  /* Column preview table */
+  .col-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+
+  .col-table th {
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-dim);
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .col-table td {
+    padding: 5px 10px;
+    border-bottom: 1px solid rgba(48,54,61,0.5);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+  }
+
+  .col-table tr:last-child td { border-bottom: none; }
+  .type-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  .type-text { background: rgba(88,166,255,0.12); color: var(--blue); }
+  .type-number { background: rgba(119,157,54,0.12); color: var(--green); }
+  .type-choice { background: rgba(188,140,255,0.12); color: var(--purple); }
+  .type-currency { background: rgba(210,153,34,0.12); color: var(--amber); }
+  .type-dateTime { background: rgba(57,210,192,0.12); color: var(--cyan); }
+
+  .tab-bar {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 12px;
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 3px;
+    border: 1px solid var(--border);
+  }
+
+  .tab {
+    flex: 1;
+    padding: 8px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--text-dim);
+    transition: all 0.15s;
+  }
+
+  .tab:hover { color: var(--text); }
+  .tab.active { background: var(--surface2); color: var(--text); }
+  .tab.active.companies { border-bottom: 2px solid var(--blue); }
+  .tab.active.contacts { border-bottom: 2px solid var(--purple); }
+  .tab.active.jobs { border-bottom: 2px solid var(--cyan); }
+  .tab.active.deals { border-bottom: 2px solid var(--green); }
+
+  .scrollable { max-height: 300px; overflow-y: auto; }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <h1>DEG Presales CRM → <span>SharePoint</span> Migration</h1>
+  <div class="header-right">
+    <div id="userBadge" class="user-badge" style="display:none"></div>
+    <button id="signOutBtn" class="btn btn-outline" style="display:none" onclick="signOut()">Sign Out</button>
+  </div>
+</div>
+
+<div class="container" id="app">
+  <!-- Login -->
+  <div id="loginScreen" class="login-screen">
+    <h2>SharePoint Migration Tool</h2>
+    <p>Creates 4 SharePoint Lists (Companies, Contacts, Jobs, Deals) with proper column schemas, then bulk uploads the DEG presales CRM seed data.</p>
+    <p style="font-size:13px; color: var(--amber);">Uses the same MSAL + Graph API pattern as Project Truth V3</p>
+    <button class="btn btn-primary login-btn" onclick="signIn()">Sign in with Microsoft</button>
+  </div>
+
+  <!-- Main -->
+  <div id="mainScreen" style="display:none">
+    <div class="steps">
+
+      <!-- Step 1: Config -->
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-header-left">
+            <div class="step-num" id="step1Num">1</div>
+            <div class="step-title">Configuration</div>
+          </div>
+        </div>
+        <div class="step-body">
+          <p class="step-desc">Your Azure AD and SharePoint config from Project Truth. Site ID uses root site with Sites.Selected write grant.</p>
+          <div class="config-grid">
+            <div class="config-field">
+              <label>Client ID</label>
+              <input id="cfgClientId" value="613928f8-0497-47ea-bb0f-c1725a1f156a" readonly />
+            </div>
+            <div class="config-field">
+              <label>Tenant ID</label>
+              <input id="cfgTenantId" value="ec357a32-5b85-438d-a765-ae33c8eb13b7" readonly />
+            </div>
+            <div class="config-field">
+              <label>Root Site ID</label>
+              <input id="cfgSiteId" value="8103997e-0688-4832-a5b4-bf18de7f96f5" />
+            </div>
+            <div class="config-field">
+              <label>List Name Prefix</label>
+              <input id="cfgPrefix" value="DEG-CRM" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Data Preview -->
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-header-left">
+            <div class="step-num" id="step2Num">2</div>
+            <div class="step-title">Data Preview & Schema</div>
+          </div>
+        </div>
+        <div class="step-body">
+          <div class="data-preview">
+            <div class="data-card">
+              <div class="data-card-label">Companies</div>
+              <div class="data-card-value">5</div>
+              <div class="data-card-sub">14 columns</div>
+            </div>
+            <div class="data-card">
+              <div class="data-card-label">Contacts</div>
+              <div class="data-card-value">6</div>
+              <div class="data-card-sub">6 columns</div>
+            </div>
+            <div class="data-card">
+              <div class="data-card-label">Jobs</div>
+              <div class="data-card-value">6</div>
+              <div class="data-card-sub">8 columns</div>
+            </div>
+            <div class="data-card">
+              <div class="data-card-label">Deals</div>
+              <div class="data-card-value">6</div>
+              <div class="data-card-sub">9 columns</div>
+            </div>
+          </div>
+
+          <div class="tab-bar">
+            <div class="tab active companies" onclick="showSchema('companies')">Companies</div>
+            <div class="tab" onclick="showSchema('contacts')">Contacts</div>
+            <div class="tab" onclick="showSchema('jobs')">Jobs</div>
+            <div class="tab" onclick="showSchema('deals')">Deals</div>
+          </div>
+          <div class="scrollable" id="schemaPreview"></div>
+        </div>
+      </div>
+
+      <!-- Step 3: Create & Upload -->
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-header-left">
+            <div class="step-num" id="step3Num">3</div>
+            <div class="step-title">Create Lists & Upload Data</div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button id="runBtn" class="btn btn-primary" onclick="runMigration()">▶ Run Migration</button>
+          </div>
+        </div>
+        <div class="step-body">
+          <p class="step-desc">Creates 4 SharePoint lists with proper column schemas (one column at a time to avoid the bulk-create naming bug), then uploads all seed data.</p>
+          <div id="progressSection" style="display:none;">
+            <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+            <div style="display:flex; justify-content:space-between; margin-top:6px;">
+              <span id="progressLabel" style="font-size:12px; color:var(--text-dim);">Starting...</span>
+              <span id="progressPct" style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-dim);">0%</span>
+            </div>
+          </div>
+          <div class="log-container" id="logContainer"></div>
+        </div>
+      </div>
+
+      <!-- Step 4: Results -->
+      <div class="step-card" id="resultsCard" style="display:none">
+        <div class="step-header">
+          <div class="step-header-left">
+            <div class="step-num done" id="step4Num">✓</div>
+            <div class="step-title">Migration Results</div>
+          </div>
+        </div>
+        <div class="step-body">
+          <div id="resultsContainer"></div>
+          <div id="configOutput" style="margin-top:16px;"></div>
+        </div>
+      </div>
+
+      <!-- Delete Utility -->
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-header-left">
+            <div class="step-num" style="background:var(--red);">✕</div>
+            <div class="step-title">Delete List (Utility)</div>
+          </div>
+        </div>
+        <div class="step-body">
+          <p class="step-desc">Paste a SharePoint List GUID to delete it. Use this to nuke botched lists before re-running migration.</p>
+          <div class="delete-section" style="margin-top:0; border-top:none; padding-top:0;">
+            <input id="deleteListId" placeholder="Paste list GUID here..." />
+            <button class="btn btn-danger" onclick="deleteList()">Delete List</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════════
+// MSAL CONFIG — same as Project Truth V3
+// ═══════════════════════════════════════════════════════════════════════════════
+const msalConfig = {
+  auth: {
+    clientId: "613928f8-0497-47ea-bb0f-c1725a1f156a",
+    authority: "https://login.microsoftonline.com/ec357a32-5b85-438d-a765-ae33c8eb13b7",
+    redirectUri: window.location.origin + window.location.pathname,
+  },
+  cache: { cacheLocation: "sessionStorage" }
+};
+
+const msalApp = new msal.PublicClientApplication(msalConfig);
+let accessToken = null;
+
+async function signIn() {
+  try {
+    const resp = await msalApp.loginPopup({ scopes: ["Sites.ReadWrite.All"] });
+    msalApp.setActiveAccount(resp.account);
+    await getToken();
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("mainScreen").style.display = "block";
+    document.getElementById("userBadge").style.display = "block";
+    document.getElementById("userBadge").textContent = resp.account.username;
+    document.getElementById("signOutBtn").style.display = "block";
+    showSchema('companies');
+  } catch (e) {
+    alert("Sign-in failed: " + e.message);
+  }
+}
+
+async function getToken() {
+  const account = msalApp.getActiveAccount();
+  if (!account) throw new Error("No active account");
+  try {
+    const resp = await msalApp.acquireTokenSilent({ scopes: ["Sites.ReadWrite.All"], account });
+    accessToken = resp.accessToken;
+  } catch {
+    const resp = await msalApp.acquireTokenPopup({ scopes: ["Sites.ReadWrite.All"] });
+    accessToken = resp.accessToken;
+  }
+}
+
+function signOut() {
+  msalApp.logoutPopup();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// GRAPH API HELPERS
+// ═══════════════════════════════════════════════════════════════════════════════
+async function graph(method, url, body) {
+  await getToken();
+  const opts = {
+    method,
+    headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const resp = await fetch(`https://graph.microsoft.com/v1.0${url}`, opts);
+  if (!resp.ok) {
+    const errText = await resp.text();
+    throw new Error(`Graph ${method} ${resp.status}: ${errText}`);
+  }
+  if (resp.status === 204) return null;
+  return resp.json();
+}
+
+const SITE = () => `/sites/${document.getElementById('cfgSiteId').value}`;
+const PREFIX = () => document.getElementById('cfgPrefix').value;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SEED DATA — from DEG CRM prototype
+// ═══════════════════════════════════════════════════════════════════════════════
+const PIPELINE_STAGES = [
+  { id: "nda_sent", label: "NDA Sent", prob: 5 },
+  { id: "nda_received", label: "NDA Received", prob: 15 },
+  { id: "docs_received", label: "Docs Received", prob: 25 },
+  { id: "quote_prepared", label: "Quote Prepared", prob: 40 },
+  { id: "quote_submitted", label: "Quote Submitted", prob: 60 },
+  { id: "negotiation", label: "Negotiation", prob: 75 },
+  { id: "won", label: "Won", prob: 100 },
+  { id: "lost", label: "Lost", prob: 0 },
+];
+
+const COMPANY_TYPES = [
+  "Potential Lead", "Subcontractor", "General Contractor",
+  "Past Client", "Active Client", "Vendor"
+];
+
+const OWNERS = ["Sean", "Adam", "Eli", "Unassigned"];
+
+const SEED_COMPANIES = [
+  { CompanyName:"Aspen Power", Domain:"aspenpower.com", CompanyType:"Active Client", Description:"Utility-scale solar developer", TrackerType:"Single-Axis Tracker", Modules:"Jinko Tiger Neo", ModuleSize:"580W", Address:"1200 Energy Blvd", City:"Austin", State:"TX", Phone:"(512) 555-0180", Website:"https://aspenpower.com", DateAdded:"2024-11-15" },
+  { CompanyName:"Lightsource BP", Domain:"lightsourcebp.com", CompanyType:"Potential Lead", Description:"Global solar energy company", TrackerType:"NEXTracker NX Horizon", Modules:"Canadian Solar BiHiKu7", ModuleSize:"600W", Address:"500 Solar Way", City:"Denver", State:"CO", Phone:"(303) 555-0220", Website:"https://lightsourcebp.com", DateAdded:"2025-01-08" },
+  { CompanyName:"Ranger Power", Domain:"rangerpower.com", CompanyType:"General Contractor", Description:"Solar and storage project developer", TrackerType:"Array Technologies DuraTrack", Modules:"LONGi Hi-MO 6", ModuleSize:"560W", Address:"800 Ranger Rd", City:"Nashville", State:"TN", Phone:"(615) 555-0340", Website:"https://rangerpower.com", DateAdded:"2024-09-22" },
+  { CompanyName:"Savion Energy", Domain:"savionenergy.com", CompanyType:"Past Client", Description:"Renewable energy project developer - wind and solar", TrackerType:"GameChange Genius", Modules:"Trina Vertex S+", ModuleSize:"590W", Address:"2100 Power Ln", City:"Kansas City", State:"MO", Phone:"(816) 555-0410", Website:"https://savionenergy.com", DateAdded:"2024-06-10" },
+  { CompanyName:"Silicon Ranch", Domain:"siliconranch.com", CompanyType:"Active Client", Description:"Solar energy producer with agrivoltaics focus", TrackerType:"FTC Solar Voyager+", Modules:"First Solar Series 7", ModuleSize:"545W", Address:"3300 West End Ave", City:"Nashville", State:"TN", Phone:"(615) 555-0500", Website:"https://siliconranch.com", DateAdded:"2025-01-20" },
+];
+
+const SEED_CONTACTS = [
+  { FirstName:"Mike", LastName:"Chen", Email:"mchen@aspenpower.com", Phone:"(512) 555-0181", Role:"VP of Construction", CompanyRef:"Aspen Power" },
+  { FirstName:"Sarah", LastName:"Williams", Email:"swilliams@aspenpower.com", Phone:"(512) 555-0182", Role:"Project Manager", CompanyRef:"Aspen Power" },
+  { FirstName:"James", LastName:"Porter", Email:"jporter@lightsourcebp.com", Phone:"(303) 555-0221", Role:"Director of Procurement", CompanyRef:"Lightsource BP" },
+  { FirstName:"Emily", LastName:"Tran", Email:"etran@rangerpower.com", Phone:"(615) 555-0341", Role:"Head of EPC", CompanyRef:"Ranger Power" },
+  { FirstName:"David", LastName:"Kowalski", Email:"dkowalski@savionenergy.com", Phone:"(816) 555-0411", Role:"Construction Manager", CompanyRef:"Savion Energy" },
+  { FirstName:"Rachel", LastName:"Singh", Email:"rsingh@siliconranch.com", Phone:"(615) 555-0501", Role:"VP of Development", CompanyRef:"Silicon Ranch" },
+];
+
+const SEED_JOBS = [
+  { JobName:"Aspen Power - Morrow", City:"Morrow", State:"GA", CompanyRef:"Aspen Power", SystemSize:"120 MW DC", Description:"Ground mount utility-scale solar installation", DateAdded:"2024-12-01" },
+  { JobName:"Aspen Power - Valdosta", City:"Valdosta", State:"GA", CompanyRef:"Aspen Power", SystemSize:"85 MW DC", Description:"Single-axis tracker solar farm", DateAdded:"2025-01-10" },
+  { JobName:"Lightsource - Fort Collins", City:"Fort Collins", State:"CO", CompanyRef:"Lightsource BP", SystemSize:"200 MW DC", Description:"Bifacial module installation with NEXTracker", DateAdded:"2025-01-15" },
+  { JobName:"Ranger - Clarksville", City:"Clarksville", State:"TN", CompanyRef:"Ranger Power", SystemSize:"95 MW DC", Description:"DuraTrack system with battery storage", DateAdded:"2024-10-05" },
+  { JobName:"Savion - Topeka", City:"Topeka", State:"KS", CompanyRef:"Savion Energy", SystemSize:"150 MW DC", Description:"Utility-scale with agrivoltaic design", DateAdded:"2024-07-20" },
+  { JobName:"Silicon Ranch - Pulaski", City:"Pulaski", State:"TN", CompanyRef:"Silicon Ranch", SystemSize:"180 MW DC", Description:"Regenerative energy installation", DateAdded:"2025-01-25" },
+];
+
+const SEED_DEALS = [
+  { DealName:"Aspen Morrow EPC", JobRef:"Aspen Power - Morrow", CompanyRef:"Aspen Power", Stage:"Negotiation", Value:18500000, Owner:"Sean", ContactRef:"Mike Chen", DateAdded:"2024-12-05", Notes:"Final pricing review scheduled", NDA:true, DataRoom:true, BidSent:true },
+  { DealName:"Aspen Valdosta Subcontract", JobRef:"Aspen Power - Valdosta", CompanyRef:"Aspen Power", Stage:"Quote Submitted", Value:12200000, Owner:"Adam", ContactRef:"Sarah Williams", DateAdded:"2025-01-12", Notes:"Awaiting feedback on labor rates", NDA:true, DataRoom:true, BidSent:true },
+  { DealName:"Lightsource Fort Collins BOS", JobRef:"Lightsource - Fort Collins", CompanyRef:"Lightsource BP", Stage:"NDA Received", Value:32000000, Owner:"Eli", ContactRef:"James Porter", DateAdded:"2025-01-16", Notes:"NDA signed, requesting site docs", NDA:true, DataRoom:false, BidSent:false },
+  { DealName:"Ranger Clarksville EPC", JobRef:"Ranger - Clarksville", CompanyRef:"Ranger Power", Stage:"Won", Value:14800000, Owner:"Sean", ContactRef:"Emily Tran", DateAdded:"2024-10-10", Notes:"Contract executed, mobilization Q1", NDA:true, DataRoom:true, BidSent:true },
+  { DealName:"Savion Topeka Tracker Install", JobRef:"Savion - Topeka", CompanyRef:"Savion Energy", Stage:"Lost", Value:22500000, Owner:"Adam", ContactRef:"David Kowalski", DateAdded:"2024-08-01", Notes:"Lost to competitor on pricing", NDA:true, DataRoom:true, BidSent:true },
+  { DealName:"Silicon Ranch Pulaski Full EPC", JobRef:"Silicon Ranch - Pulaski", CompanyRef:"Silicon Ranch", Stage:"Docs Received", Value:27500000, Owner:"Sean", ContactRef:"Rachel Singh", DateAdded:"2025-01-26", Notes:"Reviewing civil drawings and geotech", NDA:true, DataRoom:true, BidSent:false },
+];
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LIST SCHEMAS — columns created individually (avoids bulk-create naming bug)
+// ═══════════════════════════════════════════════════════════════════════════════
+const LIST_SCHEMAS = {
+  companies: {
+    listName: "Companies",
+    columns: [
+      { displayName: "CompanyName", text: { maxLength: 255 } },
+      { displayName: "Domain", text: { maxLength: 255 } },
+      { displayName: "CompanyType", choice: { choices: COMPANY_TYPES } },
+      { displayName: "Description", text: { maxLength: 500, allowMultipleLines: true } },
+      { displayName: "TrackerType", text: { maxLength: 255 } },
+      { displayName: "Modules", text: { maxLength: 255 } },
+      { displayName: "ModuleSize", text: { maxLength: 50 } },
+      { displayName: "Address", text: { maxLength: 500 } },
+      { displayName: "City", text: { maxLength: 100 } },
+      { displayName: "State", text: { maxLength: 10 } },
+      { displayName: "Phone", text: { maxLength: 50 } },
+      { displayName: "Website", text: { maxLength: 500 } },
+      { displayName: "DateAdded", dateTime: { format: "dateOnly" } },
+    ],
+    data: SEED_COMPANIES,
+    titleField: "CompanyName",
+  },
+  contacts: {
+    listName: "Contacts",
+    columns: [
+      { displayName: "FirstName", text: { maxLength: 100 } },
+      { displayName: "LastName", text: { maxLength: 100 } },
+      { displayName: "Email", text: { maxLength: 255 } },
+      { displayName: "Phone", text: { maxLength: 50 } },
+      { displayName: "Role", text: { maxLength: 255 } },
+      { displayName: "CompanyRef", text: { maxLength: 255 } },
+    ],
+    data: SEED_CONTACTS,
+    titleField: "FirstName",
+  },
+  jobs: {
+    listName: "Jobs",
+    columns: [
+      { displayName: "JobName", text: { maxLength: 255 } },
+      { displayName: "City", text: { maxLength: 100 } },
+      { displayName: "State", text: { maxLength: 10 } },
+      { displayName: "CompanyRef", text: { maxLength: 255 } },
+      { displayName: "SystemSize", text: { maxLength: 50 } },
+      { displayName: "Description", text: { maxLength: 500, allowMultipleLines: true } },
+      { displayName: "DateAdded", dateTime: { format: "dateOnly" } },
+    ],
+    data: SEED_JOBS,
+    titleField: "JobName",
+  },
+  deals: {
+    listName: "Deals",
+    columns: [
+      { displayName: "DealName", text: { maxLength: 255 } },
+      { displayName: "JobRef", text: { maxLength: 255 } },
+      { displayName: "CompanyRef", text: { maxLength: 255 } },
+      { displayName: "Stage", choice: { choices: PIPELINE_STAGES.map(s => s.label) } },
+      { displayName: "Value", currency: { locale: "en-US" } },
+      { displayName: "Probability", number: { decimalPlaces: "none", minimum: 0, maximum: 100 } },
+      { displayName: "WeightedValue", currency: { locale: "en-US" } },
+      { displayName: "Owner", choice: { choices: OWNERS } },
+      { displayName: "ContactRef", text: { maxLength: 255 } },
+      { displayName: "DateAdded", dateTime: { format: "dateOnly" } },
+      { displayName: "Notes", text: { maxLength: 1000, allowMultipleLines: true } },
+      { displayName: "NDA", boolean: {} },
+      { displayName: "DataRoom", boolean: {} },
+      { displayName: "BidSent", boolean: {} },
+    ],
+    data: SEED_DEALS,
+    titleField: "DealName",
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SCHEMA PREVIEW
+// ═══════════════════════════════════════════════════════════════════════════════
+let activeTab = 'companies';
+
+function showSchema(key) {
+  activeTab = key;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active', 'companies', 'contacts', 'jobs', 'deals'));
+  const tabs = document.querySelectorAll('.tab');
+  const idx = ['companies','contacts','jobs','deals'].indexOf(key);
+  tabs[idx].classList.add('active', key);
+
+  const schema = LIST_SCHEMAS[key];
+  let html = '<table class="col-table"><thead><tr><th>Column</th><th>Type</th><th>Details</th></tr></thead><tbody>';
+  html += `<tr><td>Title</td><td><span class="type-badge type-text">text</span></td><td>Built-in (maps to ${schema.titleField})</td></tr>`;
+  for (const col of schema.columns) {
+    const type = Object.keys(col).find(k => k !== 'displayName');
+    const details = [];
+    if (type === 'text') {
+      details.push(`max ${col.text.maxLength}`);
+      if (col.text.allowMultipleLines) details.push('multiline');
+    } else if (type === 'choice') {
+      details.push(col.choice.choices.slice(0, 3).join(', ') + (col.choice.choices.length > 3 ? '...' : ''));
+    } else if (type === 'currency') {
+      details.push('USD');
+    } else if (type === 'number') {
+      details.push(`${col.number.minimum || 0}–${col.number.maximum || '∞'}`);
+    } else if (type === 'boolean') {
+      details.push('Yes/No');
+    } else if (type === 'dateTime') {
+      details.push(col.dateTime.format);
+    }
+    html += `<tr><td>${col.displayName}</td><td><span class="type-badge type-${type}">${type}</span></td><td>${details.join(', ')}</td></tr>`;
+  }
+  html += '</tbody></table>';
+  document.getElementById('schemaPreview').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LOGGING
+// ═══════════════════════════════════════════════════════════════════════════════
+function log(msg, cls = '') {
+  const container = document.getElementById('logContainer');
+  const now = new Date().toLocaleTimeString('en-US', { hour12: false });
+  container.innerHTML += `<div class="log-entry"><span class="log-time">${now}</span><span class="${cls}">${msg}</span></div>`;
+  container.scrollTop = container.scrollHeight;
+}
+
+function setProgress(pct, label) {
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = Math.round(pct) + '%';
+  if (label) document.getElementById('progressLabel').textContent = label;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MIGRATION ENGINE
+// ═══════════════════════════════════════════════════════════════════════════════
+const results = {};
+
+async function createListWithColumns(key) {
+  const schema = LIST_SCHEMAS[key];
+  const fullName = `${PREFIX()}-${schema.listName}`;
+
+  // Step 1: Create empty list
+  log(`Creating list: ${fullName}`, 'log-info');
+  const list = await graph("POST", `${SITE()}/lists`, {
+    displayName: fullName,
+    list: { template: "genericList" }
+  });
+  const listId = list.id;
+  log(`✓ List created: ${listId}`, 'log-ok');
+
+  // Step 2: Add columns one at a time
+  const colMap = {};
+  for (let i = 0; i < schema.columns.length; i++) {
+    const col = schema.columns[i];
+    try {
+      const created = await graph("POST", `${SITE()}/lists/${listId}/columns`, col);
+      colMap[col.displayName] = created.name; // capture internal name
+      log(`  + ${col.displayName} → ${created.name}`, 'log-dim');
+    } catch (e) {
+      log(`  ✗ ${col.displayName}: ${e.message}`, 'log-err');
+    }
+  }
+
+  log(`✓ ${Object.keys(colMap).length}/${schema.columns.length} columns created`, 'log-ok');
+  return { listId, colMap, fullName };
+}
+
+async function uploadItems(listId, colMap, items, titleField) {
+  let uploaded = 0;
+  for (const item of items) {
+    const fields = {};
+    // Map Title field
+    fields.Title = String(item[titleField] || '');
+
+    for (const [key, val] of Object.entries(item)) {
+      if (key === titleField) continue;
+      const internalName = colMap[key];
+      if (!internalName) continue;
+
+      // Handle special types
+      if (key === 'Value' || key === 'WeightedValue') {
+        fields[internalName] = Number(val) || 0;
+      } else if (key === 'Probability') {
+        fields[internalName] = Number(val) || 0;
+      } else if (key === 'NDA' || key === 'DataRoom' || key === 'BidSent') {
+        fields[internalName] = val === true || val === 'true';
+      } else if (key === 'DateAdded') {
+        fields[internalName] = val ? val + 'T00:00:00Z' : null;
+      } else {
+        fields[internalName] = String(val || '');
+      }
+    }
+
+    // Auto-calc probability and weighted value for deals
+    if (item.Stage && item.Value) {
+      const stage = PIPELINE_STAGES.find(s => s.label === item.Stage);
+      if (stage && colMap.Probability) {
+        fields[colMap.Probability] = stage.prob;
+      }
+      if (stage && colMap.WeightedValue) {
+        fields[colMap.WeightedValue] = Math.round(item.Value * stage.prob / 100);
+      }
+    }
+
+    try {
+      await graph("POST", `${SITE()}/lists/${listId}/items`, { fields });
+      uploaded++;
+    } catch (e) {
+      log(`  ✗ Upload failed: ${fields.Title} — ${e.message}`, 'log-err');
+    }
+  }
+  return uploaded;
+}
+
+async function runMigration() {
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.textContent = 'Running...';
+  document.getElementById('progressSection').style.display = 'block';
+  document.getElementById('logContainer').innerHTML = '';
+
+  const listKeys = ['companies', 'contacts', 'jobs', 'deals'];
+  const totalSteps = listKeys.length * 2; // create + upload for each
+  let currentStep = 0;
+
+  try {
+    for (const key of listKeys) {
+      const schema = LIST_SCHEMAS[key];
+
+      // Create list
+      setProgress((currentStep / totalSteps) * 100, `Creating ${schema.listName} list...`);
+      const { listId, colMap, fullName } = await createListWithColumns(key);
+      currentStep++;
+
+      // Upload data
+      setProgress((currentStep / totalSteps) * 100, `Uploading ${schema.data.length} ${schema.listName}...`);
+      log(`Uploading ${schema.data.length} items to ${fullName}...`, 'log-info');
+      const count = await uploadItems(listId, colMap, schema.data, schema.titleField);
+      log(`✓ ${count}/${schema.data.length} items uploaded`, 'log-ok');
+      currentStep++;
+
+      results[key] = { listId, colMap, fullName, count };
+    }
+
+    setProgress(100, 'Migration complete!');
+    log('', '');
+    log('═══ MIGRATION COMPLETE ═══', 'log-ok');
+    document.getElementById('step3Num').classList.add('done');
+    document.getElementById('step3Num').textContent = '✓';
+
+    showResults();
+  } catch (e) {
+    log(`FATAL: ${e.message}`, 'log-err');
+    setProgress(0, 'Failed');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '▶ Run Migration';
+}
+
+function showResults() {
+  const card = document.getElementById('resultsCard');
+  card.style.display = 'block';
+
+  const icons = { companies: '🏢', contacts: '👤', jobs: '🔧', deals: '💰' };
+  let html = '';
+  for (const [key, r] of Object.entries(results)) {
+    html += `
+      <div class="list-result">
+        <div class="list-result-icon ${key}">${icons[key]}</div>
+        <div class="list-result-info">
+          <div class="list-result-name">${r.fullName}</div>
+          <div class="list-result-id">${r.listId}</div>
+        </div>
+        <div class="list-result-count">${r.count} items</div>
+      </div>`;
+  }
+  document.getElementById('resultsContainer').innerHTML = html;
+
+  // Output config block for Project Truth
+  let configCode = `// ── CRM List IDs (paste into Project Truth V3 CONFIG) ──\n`;
+  configCode += `const CRM_LISTS = {\n`;
+  for (const [key, r] of Object.entries(results)) {
+    configCode += `  ${key}: "${r.listId}", // ${r.fullName}\n`;
+  }
+  configCode += `};\n\n`;
+  configCode += `// ── Column Name Mappings (display → internal) ──\n`;
+  for (const [key, r] of Object.entries(results)) {
+    configCode += `// ${key}:\n`;
+    for (const [display, internal] of Object.entries(r.colMap)) {
+      if (display !== internal) {
+        configCode += `//   ${display} → ${internal}\n`;
+      }
+    }
+  }
+
+  document.getElementById('configOutput').innerHTML = `
+    <p style="font-size:13px; font-weight:600; margin-bottom:8px; color:var(--green);">Config for Project Truth V3:</p>
+    <pre style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:14px; font-family:'JetBrains Mono',monospace; font-size:11px; overflow-x:auto; white-space:pre-wrap;">${configCode}</pre>`;
+
+  card.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DELETE UTILITY
+// ═══════════════════════════════════════════════════════════════════════════════
+async function deleteList() {
+  const id = document.getElementById('deleteListId').value.trim();
+  if (!id) return alert('Paste a List GUID first');
+  if (!confirm(`Delete list ${id}? This cannot be undone.`)) return;
+
+  try {
+    await graph("DELETE", `${SITE()}/lists/${id}`);
+    log(`✓ Deleted list: ${id}`, 'log-ok');
+    alert('List deleted');
+  } catch (e) {
+    log(`✗ Delete failed: ${e.message}`, 'log-err');
+    alert('Delete failed: ' + e.message);
+  }
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  const accounts = msalApp.getAllAccounts();
+  if (accounts.length > 0) {
+    msalApp.setActiveAccount(accounts[0]);
+    getToken().then(() => {
+      document.getElementById("loginScreen").style.display = "none";
+      document.getElementById("mainScreen").style.display = "block";
+      document.getElementById("userBadge").style.display = "block";
+      document.getElementById("userBadge").textContent = accounts[0].username;
+      document.getElementById("signOutBtn").style.display = "block";
+      showSchema('companies');
+    }).catch(() => {});
+  }
+});
+</script>
+</body>
+</html>
