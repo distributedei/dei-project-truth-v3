@@ -102,7 +102,7 @@
 <div id="root"></div>
 <script type="text/babel">
 const{useState,useEffect,useCallback,useMemo,useRef}=React;
-const CONFIG={clientId:"613928f8-0497-47ea-bb0f-c1725a1f156a",tenantId:"ec357a32-5b85-438d-a765-ae33c8eb13b7",siteId:"8103997e-0688-4832-a5b4-bf18de7f96f5",siteUrl:"https://distributedei.sharepoint.com",lists:{rfi:"38fd99d2-dad5-41d8-a898-4f5e425ad340"}};
+const CONFIG={clientId:"613928f8-0497-47ea-bb0f-c1725a1f156a",tenantId:"ec357a32-5b85-438d-a765-ae33c8eb13b7",siteId:"8103997e-0688-4832-a5b4-bf18de7f96f5",siteUrl:"https://distributedei.sharepoint.com",lists:{rfi:"38fd99d2-dad5-41d8-a898-4f5e425ad340",crmCompanies:"a753a2be-7cc6-4e6d-b81e-108c87421bda",crmContacts:"46671fc3-c41a-4ac4-84bf-993d487aaf08",crmJobs:"f93f7675-11a1-470a-a2b3-87d9b6ad0588",crmDeals:"3f1ef8af-f3f9-4e16-8484-80d8dd17e685"}};
 const msalInstance=new msal.PublicClientApplication({auth:{clientId:CONFIG.clientId,authority:"https://login.microsoftonline.com/"+CONFIG.tenantId,redirectUri:window.location.origin},cache:{cacheLocation:"sessionStorage"}});
 const SCOPES=["Sites.Selected","Files.Read.All","User.Read"];
 async function getToken(){const a=msalInstance.getAllAccounts();if(!a.length)throw new Error("Not signed in");try{return(await msalInstance.acquireTokenSilent({scopes:SCOPES,account:a[0]})).accessToken;}catch(e){return(await msalInstance.acquireTokenPopup({scopes:SCOPES})).accessToken;}}
@@ -613,6 +613,161 @@ function ExecRollup(){
   </div>);
 }
 
+/* ── CRM COMPONENTS ── */
+const CRM_STAGES=["NDA Sent","NDA Received","Docs Received","Quote Prepared","Quote Submitted","Negotiation","Won","Lost"];
+const CRM_STAGE_PROB={"NDA Sent":5,"NDA Received":15,"Docs Received":25,"Quote Prepared":40,"Quote Submitted":60,"Negotiation":75,"Won":100,"Lost":0};
+const CRM_STAGE_COLORS={"NDA Sent":"#8a9baa","NDA Received":"#5a8ab4","Docs Received":"#4a7296","Quote Prepared":"#e8a930","Quote Submitted":"#d4881c","Negotiation":"#e05252","Won":"#2ecc8a","Lost":"#6b7c8a"};
+const CRM_OWNERS=["Sean","Adam","Eli","Unassigned"];
+
+function CrmPipeline({crm,onReload}){
+  const[stageF,setStageF]=useState("all");const[ownerF,setOwnerF]=useState("all");const[search,setSearch]=useState("");const[viewMode,setViewMode]=useState("kanban");
+  if(crm.loading)return <div className="loading"><div className="spinner"/>Loading CRM data...</div>;
+  var deals=crm.deals;var companies=crm.companies;var contacts=crm.contacts;
+  var coMap={};companies.forEach(function(c){coMap[c.CompanyName||c.Title]=c;});
+  var filtered=deals.filter(function(d){
+    if(stageF!=="all"&&d.Stage!==stageF)return false;
+    if(ownerF!=="all"&&d.Owner!==ownerF)return false;
+    if(search){var s=search.toLowerCase();return(d.DealName||d.Title||"").toLowerCase().includes(s)||(d.CompanyRef||"").toLowerCase().includes(s);}
+    return true;
+  });
+  var totalValue=filtered.reduce(function(s,d){return s+(d.Value||0);},0);
+  var weightedValue=filtered.reduce(function(s,d){return s+(d.WeightedValue||d.Value*(CRM_STAGE_PROB[d.Stage]||0)/100||0);},0);
+  var activeDeals=filtered.filter(function(d){return d.Stage!=="Won"&&d.Stage!=="Lost";});
+  var wonDeals=filtered.filter(function(d){return d.Stage==="Won";});
+
+  return(<div>
+    <div><div className="section-title">Sales <span>Pipeline</span></div><div className="section-sub">{deals.length} deals — {companies.length} companies tracked</div></div>
+    <div className="kpi-grid" style={{marginTop:16}}>
+      <div className="kpi-card"><div className="kpi-label">Total Pipeline</div><div className="kpi-value">${(totalValue/1e6).toFixed(1)}M</div><div className="kpi-sub">{filtered.length} deals</div></div>
+      <div className="kpi-card"><div className="kpi-label">Weighted Value</div><div className="kpi-value">${(weightedValue/1e6).toFixed(1)}M</div><div className="kpi-sub">probability-adjusted</div></div>
+      <div className="kpi-card good"><div className="kpi-label">Won</div><div className="kpi-value">{wonDeals.length}</div><div className="kpi-sub green">${(wonDeals.reduce(function(s,d){return s+(d.Value||0);},0)/1e6).toFixed(1)}M</div></div>
+      <div className="kpi-card"><div className="kpi-label">Active Deals</div><div className="kpi-value">{activeDeals.length}</div><div className="kpi-sub">in pipeline</div></div>
+    </div>
+    <div className="exec-filters">
+      <input className="exec-search" placeholder="Search deals..." value={search} onChange={function(e){setSearch(e.target.value);}}/>
+      <select className="fsel" value={stageF} onChange={function(e){setStageF(e.target.value);}}><option value="all">All Stages</option>{CRM_STAGES.map(function(s){return <option key={s} value={s}>{s}</option>;})}</select>
+      <select className="fsel" value={ownerF} onChange={function(e){setOwnerF(e.target.value);}}><option value="all">All Owners</option>{CRM_OWNERS.map(function(o){return <option key={o} value={o}>{o}</option>;})}</select>
+      <div className="view-toggle"><button className={"view-toggle-btn "+(viewMode==="kanban"?"active":"")} onClick={function(){setViewMode("kanban");}}>Kanban</button><button className={"view-toggle-btn "+(viewMode==="table"?"active":"")} onClick={function(){setViewMode("table");}}>Table</button></div>
+      <button className="btn btn-ghost btn-sm" onClick={onReload}>↻ Refresh</button>
+    </div>
+    {viewMode==="kanban"?(<div className="kanban" style={{gridTemplateColumns:"repeat("+CRM_STAGES.filter(function(s){return stageF==="all"||s===stageF;}).length+",minmax(200px,1fr))"}}>
+      {CRM_STAGES.filter(function(s){return stageF==="all"||s===stageF;}).map(function(stage){
+        var stageDeals=filtered.filter(function(d){return d.Stage===stage;});
+        var stageVal=stageDeals.reduce(function(s,d){return s+(d.Value||0);},0);
+        return(<div key={stage} className="kanban-col">
+          <div className="kanban-col-title" style={{borderColor:CRM_STAGE_COLORS[stage]||"#e2e8f0"}}><span>{stage}</span><span style={{fontSize:11,color:"#8a9baa"}}>{stageDeals.length}</span></div>
+          {stageVal>0&&<div style={{fontSize:10,color:"#8a9baa",marginBottom:8,fontWeight:600}}>${(stageVal/1e6).toFixed(2)}M</div>}
+          {stageDeals.map(function(d){return(<div key={d.id} className="kanban-card">
+            <div className="kanban-card-title">{d.DealName||d.Title}</div>
+            <div className="kanban-card-sub">{d.CompanyRef||"—"}</div>
+            <div style={{display:"flex",justifyContent:"space-between",marginTop:6,alignItems:"center"}}>
+              <span style={{fontSize:12,fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,color:"#375673"}}>{d.Value?"$"+(d.Value/1e3).toFixed(0)+"k":"—"}</span>
+              <span style={{fontSize:10,padding:"2px 6px",borderRadius:10,background:"rgba(119,157,54,0.1)",color:"#779d36",fontWeight:700}}>{d.Owner||"—"}</span>
+            </div>
+            <div style={{display:"flex",gap:4,marginTop:6}}>{d.NDA&&<span style={{fontSize:9,padding:"1px 5px",borderRadius:3,background:"rgba(46,204,138,0.1)",color:"#2ecc8a",fontWeight:700}}>NDA</span>}{d.DataRoom&&<span style={{fontSize:9,padding:"1px 5px",borderRadius:3,background:"rgba(55,86,115,0.1)",color:"#375673",fontWeight:700}}>DR</span>}{d.BidSent&&<span style={{fontSize:9,padding:"1px 5px",borderRadius:3,background:"rgba(232,169,48,0.1)",color:"#e8a930",fontWeight:700}}>BID</span>}</div>
+          </div>);})}
+        </div>);
+      })}
+    </div>):(<div className="tw"><table><thead><tr><th>Deal</th><th>Company</th><th>Stage</th><th>Value</th><th>Weighted</th><th>Owner</th><th>Contact</th><th>Flags</th></tr></thead><tbody>
+      {filtered.map(function(d){return(<tr key={d.id}>
+        <td style={{fontWeight:600,color:"#375673"}}>{d.DealName||d.Title}</td>
+        <td>{d.CompanyRef||"—"}</td>
+        <td><span style={{display:"inline-flex",padding:"3px 10px",borderRadius:20,fontSize:10,fontWeight:700,background:(CRM_STAGE_COLORS[d.Stage]||"#8a9baa")+"20",color:CRM_STAGE_COLORS[d.Stage]||"#8a9baa",border:"1px solid "+(CRM_STAGE_COLORS[d.Stage]||"#8a9baa")+"40",fontFamily:"'Barlow Condensed',sans-serif",textTransform:"uppercase",letterSpacing:"0.5px"}}>{d.Stage||"—"}</span></td>
+        <td style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700}}>{d.Value?"$"+(d.Value/1e3).toFixed(0)+"k":"—"}</td>
+        <td style={{fontFamily:"'Barlow Condensed',sans-serif",color:"#779d36"}}>{d.WeightedValue?"$"+(d.WeightedValue/1e3).toFixed(0)+"k":"—"}</td>
+        <td>{d.Owner||"—"}</td>
+        <td style={{fontSize:12}}>{d.ContactRef||"—"}</td>
+        <td><div style={{display:"flex",gap:4}}>{d.NDA&&<span style={{fontSize:9,padding:"1px 5px",borderRadius:3,background:"rgba(46,204,138,0.1)",color:"#2ecc8a",fontWeight:700}}>NDA</span>}{d.DataRoom&&<span style={{fontSize:9,padding:"1px 5px",borderRadius:3,background:"rgba(55,86,115,0.1)",color:"#375673",fontWeight:700}}>DR</span>}{d.BidSent&&<span style={{fontSize:9,padding:"1px 5px",borderRadius:3,background:"rgba(232,169,48,0.1)",color:"#e8a930",fontWeight:700}}>BID</span>}</div></td>
+      </tr>);})}
+      {filtered.length>0&&<tr className="summary-row"><td>Total ({filtered.length})</td><td/><td/><td>${(totalValue/1e6).toFixed(2)}M</td><td>${(weightedValue/1e6).toFixed(2)}M</td><td/><td/><td/></tr>}
+    </tbody></table></div>)}
+  </div>);
+}
+
+function CrmCompanies({crm,onReload}){
+  const[search,setSearch]=useState("");const[typeF,setTypeF]=useState("all");
+  if(crm.loading)return <div className="loading"><div className="spinner"/>Loading...</div>;
+  var types=[...new Set(crm.companies.map(function(c){return c.CompanyType;}).filter(Boolean))];
+  var filtered=crm.companies.filter(function(c){
+    if(typeF!=="all"&&c.CompanyType!==typeF)return false;
+    if(search){var s=search.toLowerCase();return(c.CompanyName||c.Title||"").toLowerCase().includes(s)||(c.City||"").toLowerCase().includes(s)||(c.State||"").toLowerCase().includes(s);}
+    return true;
+  });
+  var dealsByCompany={};crm.deals.forEach(function(d){var k=d.CompanyRef||"";dealsByCompany[k]=(dealsByCompany[k]||0)+1;});
+  return(<div>
+    <div><div className="section-title">CRM <span>Companies</span></div><div className="section-sub">{crm.companies.length} companies in database</div></div>
+    <div className="exec-filters" style={{marginTop:16}}>
+      <input className="exec-search" placeholder="Search companies..." value={search} onChange={function(e){setSearch(e.target.value);}}/>
+      <select className="fsel" value={typeF} onChange={function(e){setTypeF(e.target.value);}}><option value="all">All Types</option>{types.map(function(t){return <option key={t} value={t}>{t}</option>;})}</select>
+      <button className="btn btn-ghost btn-sm" onClick={onReload}>↻ Refresh</button>
+    </div>
+    <div className="tw" style={{marginTop:16}}><table><thead><tr><th>Company</th><th>Type</th><th>Domain</th><th>Tracker</th><th>Modules</th><th>City</th><th>State</th><th>Deals</th></tr></thead><tbody>
+      {filtered.map(function(c){var cnt=dealsByCompany[c.CompanyName||c.Title]||0;return(<tr key={c.id}>
+        <td style={{fontWeight:600,color:"#375673"}}>{c.CompanyName||c.Title}</td>
+        <td><span className="bic bc-e">{c.CompanyType||"—"}</span></td>
+        <td style={{fontSize:12}}>{c.Domain||"—"}</td>
+        <td style={{fontSize:12}}>{c.TrackerType||"—"}</td>
+        <td style={{fontSize:12}}>{c.Modules||"—"}{c.ModuleSize?" ("+c.ModuleSize+")":""}</td>
+        <td>{c.City||"—"}</td>
+        <td>{c.State||"—"}</td>
+        <td>{cnt>0?<span style={{background:"rgba(119,157,54,0.1)",color:"#779d36",padding:"2px 8px",borderRadius:10,fontSize:11,fontWeight:700}}>{cnt}</span>:"—"}</td>
+      </tr>);})}
+    </tbody></table></div>
+  </div>);
+}
+
+function CrmContacts({crm,onReload}){
+  const[search,setSearch]=useState("");
+  if(crm.loading)return <div className="loading"><div className="spinner"/>Loading...</div>;
+  var filtered=crm.contacts.filter(function(c){
+    if(!search)return true;var s=search.toLowerCase();
+    return(c.FirstName||"").toLowerCase().includes(s)||(c.LastName||"").toLowerCase().includes(s)||(c.Email||"").toLowerCase().includes(s)||(c.CompanyRef||"").toLowerCase().includes(s);
+  });
+  return(<div>
+    <div><div className="section-title">CRM <span>Contacts</span></div><div className="section-sub">{crm.contacts.length} contacts</div></div>
+    <div className="exec-filters" style={{marginTop:16}}>
+      <input className="exec-search" placeholder="Search contacts..." value={search} onChange={function(e){setSearch(e.target.value);}}/>
+      <button className="btn btn-ghost btn-sm" onClick={onReload}>↻ Refresh</button>
+    </div>
+    <div className="tw" style={{marginTop:16}}><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Company</th></tr></thead><tbody>
+      {filtered.map(function(c){return(<tr key={c.id}>
+        <td style={{fontWeight:600,color:"#375673"}}>{(c.FirstName||"")+" "+(c.LastName||"")}</td>
+        <td style={{fontSize:12}}>{c.Email?<a href={"mailto:"+c.Email} style={{color:"#5a8ab4",textDecoration:"none"}}>{c.Email}</a>:"—"}</td>
+        <td style={{fontSize:12}}>{c.Phone||"—"}</td>
+        <td>{c.Role||"—"}</td>
+        <td><span className="bic bc-e">{c.CompanyRef||"—"}</span></td>
+      </tr>);})}
+    </tbody></table></div>
+  </div>);
+}
+
+function CrmJobs({crm,onReload}){
+  const[search,setSearch]=useState("");
+  if(crm.loading)return <div className="loading"><div className="spinner"/>Loading...</div>;
+  var dealsByJob={};crm.deals.forEach(function(d){var k=d.JobRef||"";dealsByJob[k]=(dealsByJob[k]||[]).push(d);});
+  var filtered=crm.jobs.filter(function(j){
+    if(!search)return true;var s=search.toLowerCase();
+    return(j.JobName||j.Title||"").toLowerCase().includes(s)||(j.City||"").toLowerCase().includes(s)||(j.CompanyRef||"").toLowerCase().includes(s);
+  });
+  return(<div>
+    <div><div className="section-title">CRM <span>Jobs</span></div><div className="section-sub">{crm.jobs.length} jobs tracked</div></div>
+    <div className="exec-filters" style={{marginTop:16}}>
+      <input className="exec-search" placeholder="Search jobs..." value={search} onChange={function(e){setSearch(e.target.value);}}/>
+      <button className="btn btn-ghost btn-sm" onClick={onReload}>↻ Refresh</button>
+    </div>
+    <div className="tw" style={{marginTop:16}}><table><thead><tr><th>Job</th><th>Company</th><th>City</th><th>State</th><th>System Size</th><th>Description</th></tr></thead><tbody>
+      {filtered.map(function(j){return(<tr key={j.id}>
+        <td style={{fontWeight:600,color:"#375673"}}>{j.JobName||j.Title}</td>
+        <td><span className="bic bc-e">{j.CompanyRef||"—"}</span></td>
+        <td>{j.City||"—"}</td>
+        <td>{j.State||"—"}</td>
+        <td style={{fontFamily:"'Barlow Condensed',sans-serif",fontWeight:700,color:"#779d36"}}>{j.SystemSize||"—"}</td>
+        <td style={{fontSize:12,maxWidth:300,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{j.Description||"—"}</td>
+      </tr>);})}
+    </tbody></table></div>
+  </div>);
+}
+
 function Login({onLogin}){
   const[loading,setLoading]=useState(false);const[error,setError]=useState(null);
   var login=async function(){setLoading(true);setError(null);try{await msalInstance.initialize();var r=await msalInstance.loginPopup({scopes:SCOPES});onLogin(r.account);}catch(e){setError(e.message);setLoading(false);}};
@@ -633,18 +788,20 @@ function Login({onLogin}){
 function App(){
   const[user,setUser]=useState(null);const[view,setView]=useState("overview");const[ready,setReady]=useState(false);const[role,setRole]=useState("admin");const[showNotifs,setShowNotifs]=useState(false);
   const[items,setItems]=useState([]);const[loading,setLoading]=useState(true);const[error,setError]=useState(null);
+  const[crm,setCrm]=useState({companies:[],contacts:[],jobs:[],deals:[],loading:true});
   useEffect(function(){msalInstance.initialize().then(function(){var a=msalInstance.getAllAccounts();if(a.length)setUser(a[0]);setReady(true);});},[]);
   var dd=useDropdowns();
   var load=useCallback(async function(){setLoading(true);setError(null);try{setItems(await getItems(CONFIG.lists.rfi));}catch(e){setError(e.message);}finally{setLoading(false);}},[]);
-  useEffect(function(){if(user)load();},[user,load]);
+  var loadCrm=useCallback(async function(){setCrm(function(p){return{...p,loading:true}});try{var[companies,contacts,jobs,deals]=await Promise.all([getItems(CONFIG.lists.crmCompanies),getItems(CONFIG.lists.crmContacts),getItems(CONFIG.lists.crmJobs),getItems(CONFIG.lists.crmDeals)]);setCrm({companies:companies,contacts:contacts,jobs:jobs,deals:deals,loading:false});}catch(e){console.error("CRM load error:",e);setCrm(function(p){return{...p,loading:false}});}},[]);
+  useEffect(function(){if(user){load();loadCrm();}},[user,load,loadCrm]);
   var handleAdd=async function(f){await addItem(CONFIG.lists.rfi,f);load();};
   var handleEdit=async function(id,f){await editItem(CONFIG.lists.rfi,id,f);load();};
   if(!ready)return <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh"}}><div className="spinner"/></div>;
   if(!user)return <Login onLogin={setUser}/>;
   var overdue=items.filter(isOverdue);
   var notifications=generateNotifications(items);
-  var nav=[{section:"PROJECT"},{id:"overview",icon:"🏠",label:"Overview"},{id:"executive",icon:"📊",label:"Executive Roll-up"},{section:"LOGS"},{id:"engineering",icon:"⚙",label:"Engineering Log",badge:overdue.length},{id:"owner",icon:"👤",label:"Owner Log"},{id:"permits",icon:"🏛",label:"Permits"},{id:"closeout",icon:"📋",label:"Closeout"},{section:"ADMIN"},{id:"dropdowns",icon:"📑",label:"Common Dropdowns"},{id:"requirements",icon:"✅",label:"Requirements"}];
-  var titles={overview:"Overview",executive:"Executive Roll-up",engineering:"Engineering Log",owner:"Owner Log",permits:"Permit Matrix",closeout:"Closeout",dropdowns:"Common Dropdowns",requirements:"Requirements Tracker"};
+  var nav=[{section:"PROJECT"},{id:"overview",icon:"🏠",label:"Overview"},{id:"executive",icon:"📊",label:"Executive Roll-up"},{section:"LOGS"},{id:"engineering",icon:"⚙",label:"Engineering Log",badge:overdue.length},{id:"owner",icon:"👤",label:"Owner Log"},{id:"permits",icon:"🏛",label:"Permits"},{id:"closeout",icon:"📋",label:"Closeout"},{section:"PRESALES CRM"},{id:"pipeline",icon:"💰",label:"Pipeline",badge:crm.deals.filter(function(d){return d.Stage&&d.Stage!=="Won"&&d.Stage!=="Lost";}).length},{id:"companies",icon:"🏢",label:"Companies"},{id:"contacts",icon:"👥",label:"Contacts"},{id:"jobs",icon:"⚡",label:"Jobs"},{section:"ADMIN"},{id:"dropdowns",icon:"📑",label:"Common Dropdowns"},{id:"requirements",icon:"✅",label:"Requirements"}];
+  var titles={overview:"Overview",executive:"Executive Roll-up",engineering:"Engineering Log",owner:"Owner Log",permits:"Permit Matrix",closeout:"Closeout",pipeline:"Sales Pipeline",companies:"Companies",contacts:"Contacts",jobs:"Jobs",dropdowns:"Common Dropdowns",requirements:"Requirements Tracker"};
   return(<div className="app">
     <div className="sidebar"><div className="sidebar-logo"><img src="logo.png" alt="DEI" style={{width:"100%",maxWidth:200}}/><div className="logo-tagline">Project Truth — PMO</div><div className="logo-divider"/></div>
       <div className="nav">{nav.map(function(item,i){if(item.section)return <div key={i} className="nav-section">{item.section}</div>;return <div key={item.id} className={"nav-item "+(view===item.id?"active":"")} onClick={function(){setView(item.id);}}><span className="nav-icon">{item.icon}</span><span>{item.label}</span>{item.badge>0&&<span className="nav-badge">{item.badge}</span>}</div>;})}</div>
@@ -660,6 +817,10 @@ function App(){
         {view==="owner"&&<ComingSoon title="Owner Log" listName="DEI-BOM-Procurement"/>}
         {view==="permits"&&<ComingSoon title="Permit Matrix" listName="DEI-Permit-Matrix"/>}
         {view==="closeout"&&<ComingSoon title="Closeout Tracker" listName="DEI-Closeout-Items"/>}
+        {view==="pipeline"&&<CrmPipeline crm={crm} onReload={loadCrm}/>}
+        {view==="companies"&&<CrmCompanies crm={crm} onReload={loadCrm}/>}
+        {view==="contacts"&&<CrmContacts crm={crm} onReload={loadCrm}/>}
+        {view==="jobs"&&<CrmJobs crm={crm} onReload={loadCrm}/>}
         {view==="dropdowns"&&<DropdownManager dropdowns={dd.dropdowns} addOption={dd.addOption} removeOption={dd.removeOption} addCategory={dd.addCategory}/>}
         {view==="requirements"&&<ReqTracker/>}
         {showNotifs&&<NotifPanel notifications={notifications} onClose={function(){setShowNotifs(false);}} onNavigate={function(item){setShowNotifs(false);setView("engineering");}}/>}
