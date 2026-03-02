@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DEG Presales CRM → SharePoint Migration</title>
-<script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
+<script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
 
@@ -638,6 +638,7 @@ let accessToken = null;
 
 async function signIn() {
   try {
+    await msalApp.initialize();
     const resp = await msalApp.loginPopup({ scopes: SCOPES });
     await getToken();
     document.getElementById("loginScreen").style.display = "none";
@@ -1064,9 +1065,10 @@ async function deleteList() {
 
 // Init
 document.addEventListener('DOMContentLoaded', () => {
-  const accounts = msalApp.getAllAccounts();
-  if (accounts.length > 0) {
-    getToken().then(() => {
+  msalApp.initialize().then(() => {
+    const accounts = msalApp.getAllAccounts();
+    if (accounts.length > 0) {
+      getToken().then(() => {
       document.getElementById("loginScreen").style.display = "none";
       document.getElementById("mainScreen").style.display = "block";
       document.getElementById("userBadge").style.display = "block";
@@ -1075,6 +1077,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showSchema('companies');
     }).catch(() => {});
   }
+  });
 });
 </script>
 </body>
